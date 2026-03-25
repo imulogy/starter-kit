@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react"
 
-import { COOKIE_CONSENT_STORAGE_KEY } from "@/features/cookies/cookie-consent.constants"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+
+export const COOKIE_CONSENT_STORAGE_KEY = "cookie-consent"
+export const COOKIE_CONSENT_TOAST_ID = "cookie-consent-toast"
 
 export function CookieConsentBanner() {
   const [mounted, setMounted] = useState(false)

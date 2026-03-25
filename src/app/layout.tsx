@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "@/app/globals.css"
 
 import { cn } from "@/lib/utils"
-import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner.client"
+import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner.client"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClientProviderWrapper } from "@/providers/query-client.provider"

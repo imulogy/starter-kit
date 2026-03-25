@@ -1,5 +1,5 @@
-import { DashboardHeader } from "@/components/dashboard/header"
-import { Sidebar } from "@/components/dashboard/sidebar"
+import { DashboardHeader } from "@/components/dashboard/header.client"
+import { Sidebar } from "@/components/dashboard/sidebar.client"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
