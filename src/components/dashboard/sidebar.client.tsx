@@ -67,7 +67,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
 
   return (
     <SidebarComponent className="border-r-0" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-b pb-0">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
