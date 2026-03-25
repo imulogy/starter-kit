@@ -1,9 +1,7 @@
 "use client"
 
-import Link from "next/link"
 import { useEffect, useState } from "react"
 
-import { WebRoutes } from "@/lib/web.routes"
 import { COOKIE_CONSENT_STORAGE_KEY } from "@/features/cookies/cookie-consent.constants"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"

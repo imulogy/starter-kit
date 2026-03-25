@@ -23,11 +23,14 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
             Try again
           </Button>
           <Button asChild className="w-full sm:w-auto" variant="outline">
-            <Link href={WebRoutes.home}>Go back home</Link>
+            <Link href={WebRoutes.home.path}>Go back home</Link>
           </Button>
         </div>
         <p className="mt-8 text-sm text-muted-foreground">
-          <Link href={WebRoutes.home} className="underline underline-offset-4 transition-colors hover:text-foreground">
+          <Link
+            href={WebRoutes.home.path}
+            className="underline underline-offset-4 transition-colors hover:text-foreground"
+          >
             Need help? Contact support
           </Link>
         </p>
