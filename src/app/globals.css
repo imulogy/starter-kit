@@ -127,3 +127,7 @@
     @apply font-sans;
   }
 }
+
+.lucide {
+  stroke-width: 1.5px;
+}

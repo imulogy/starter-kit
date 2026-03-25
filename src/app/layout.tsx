@@ -5,6 +5,7 @@ import "@/app/globals.css"
 import { cn } from "@/lib/utils"
 import { CookieConsentBanner } from "@/features/cookies/cookie-consent-banner.client"
 import { Toaster } from "@/components/ui/sonner"
+import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClientProviderWrapper } from "@/providers/query-client.provider"
 import { ThemeProvider } from "@/providers/theme.provider"
 
@@ -29,9 +30,11 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <QueryClientProviderWrapper>
-            {children}
-            <Toaster position="bottom-right" />
-            <CookieConsentBanner />
+            <TooltipProvider>
+              {children}
+              <Toaster position="bottom-right" />
+              <CookieConsentBanner />
+            </TooltipProvider>
           </QueryClientProviderWrapper>
         </ThemeProvider>
       </body>

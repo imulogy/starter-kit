@@ -1,19 +1,35 @@
-import { Button } from "@/components/ui/button"
+import { AppSidebar } from "@/components/app-sidebar/app-sidebar"
+import { NavActions } from "@/components/app-sidebar/nav-actions"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
+import { Separator } from "@/components/ui/separator"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function Page() {
   return (
-    <div className="flex h-screen min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-14 shrink-0 items-center gap-2">
+          <div className="flex flex-1 items-center gap-2 px-3">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="line-clamp-1">Project Management & Task Tracking</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+          <div className="ml-auto px-3">
+            <NavActions />
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 px-4 py-10">
+          <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
+          <div className="mx-auto h-full w-full max-w-3xl rounded-xl bg-muted/50" />
         </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
