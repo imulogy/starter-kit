@@ -1,0 +1,53 @@
+{
+  "name": "starter-kit",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "clean:install": "rm -rf .next && rm -rf node_modules && rm bun.lock && bun install",
+    "prisma:reset": "dotenv -e .env.local -- prisma migrate reset",
+    "prisma:format": "dotenv -e .env.local -- prisma format",
+    "prisma:generate": "dotenv -e .env.local -- prisma generate",
+    "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "postinstall": "bun prisma:migrate:deploy && bun prisma:generate",
+    "prettier:format": "prettier --write .",
+    "eslint:fix": "eslint --fix .",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit && eslint",
+    "env:push:development": "node scripts/vercel-env-push.js .env.development development",
+    "env:push:preview": "node scripts/vercel-env-push.js .env.development preview",
+    "env:push:all-pre-production": "bun env:push:development && bun env:push:preview",
+    "env:push:production": "node scripts/vercel-env-push.js .env.production production",
+    "env:push:one": "node scripts/vercel-env-push.js"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "^3.0.140",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.1",
+    "@prisma/adapter-neon": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "@tanstack/eslint-plugin-query": "^5.95.2",
+    "@tanstack/react-query": "^5.95.2",
+    "ai": "^6.0.138",
+    "dotenv-cli": "^11.0.0",
+    "next": "16.2.1",
+    "prisma": "^7.5.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "resend": "^6.9.4",
+    "server-only": "^0.0.1",
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
+  }
+}
