@@ -1,7 +1,7 @@
-import { defineConfig, globalIgnores } from "eslint/config";
-import nextVitals from "eslint-config-next/core-web-vitals";
-import nextTs from "eslint-config-next/typescript";
-import tanstackQuery from "@tanstack/eslint-plugin-query";
+import tanstackQuery from "@tanstack/eslint-plugin-query"
+import nextVitals from "eslint-config-next/core-web-vitals"
+import nextTs from "eslint-config-next/typescript"
+import { defineConfig, globalIgnores } from "eslint/config"
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -23,10 +23,7 @@ const eslintConfig = defineConfig([
   },
 
   {
-    files: [
-      "src/components/ui/**/*.{ts,tsx}",
-      "src/components/ai-elements/**/*.{ts,tsx}",
-    ],
+    files: ["src/components/ui/**/*.{ts,tsx}", "src/components/ai-elements/**/*.{ts,tsx}"],
     rules: {
       "react-hooks/purity": "off",
       "react-hooks/immutability": "off",
@@ -42,6 +39,6 @@ const eslintConfig = defineConfig([
       "@typescript-eslint/no-require-imports": "off",
     },
   },
-]);
+])
 
-export default eslintConfig;
+export default eslintConfig
