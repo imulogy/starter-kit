@@ -4,7 +4,8 @@ import "@/app/globals.css"
 
 import { cn } from "@/lib/utils"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { ThemeProvider } from "@/providers/theme-provider"
+import { QueryClientProviderWrapper } from "@/providers/query-client.provider"
+import { ThemeProvider } from "@/providers/theme.provider"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
@@ -26,7 +27,9 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <QueryClientProviderWrapper>{children}</QueryClientProviderWrapper>
+          </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
