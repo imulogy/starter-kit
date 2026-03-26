@@ -6,6 +6,8 @@
     "clean:install": "rm -rf .next && rm -rf node_modules && rm bun.lock && bun install",
     "prisma:reset": "dotenv -e .env.local -- prisma migrate reset",
     "prisma:format": "dotenv -e .env.local -- prisma format",
+    "prisma:push": "dotenv -e .env.local -- prisma db push && dotenv -e .env.local -- prisma generate",
+    "prisma:push:hard": "dotenv -e .env.local -- prisma db push --force-reset",
     "prisma:generate": "dotenv -e .env.local -- prisma generate",
     "prisma:migrate": "dotenv -e .env.local -- prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",

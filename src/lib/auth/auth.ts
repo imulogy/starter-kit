@@ -11,12 +11,22 @@ import { WebRoutes } from "@/lib/web.routes"
 const SevenDays = 60 * 60 * 24 * 7
 
 export const auth = betterAuth({
-  plugins: [nextCookies()],
-  baseURL: process.env.BETTER_AUTH_URL,
-  trustedOrigins: [process.env.BETTER_AUTH_URL!],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  plugins: [nextCookies()],
+  baseURL: process.env.BETTER_AUTH_URL!,
+  trustedOrigins: [process.env.BETTER_AUTH_URL!],
+  resetPassword: {
+    enabled: true,
+  },
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+  },
+  expiresIn: SevenDays,
   emailAndPassword: {
     requireEmailVerification: false,
     enabled: true,
@@ -28,9 +38,6 @@ export const auth = betterAuth({
         userFirstname: user.name ?? "Dear User",
         resetPasswordLink: url,
       }),
-  },
-  resetPassword: {
-    enabled: true,
   },
   emailVerification: {
     autoSignInAfterVerification: true,
@@ -46,13 +53,6 @@ export const auth = betterAuth({
       })
     },
   },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-  },
-  expiresIn: SevenDays,
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
       const body = ctx.body as { email?: string } | undefined
