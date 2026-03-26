@@ -12,7 +12,6 @@ import { auth } from "@/lib/auth/auth"
 import type { AuthEmbeddedOnlySuccess, AuthRedirectSuccess } from "@/lib/auth/auth-action.types"
 import { getAuthApiErrorCode } from "@/lib/auth/auth-utils"
 import { reactivateDeactivatedAccountWithDetail } from "@/lib/auth/auth.repository"
-import { prisma } from "@/lib/prisma"
 import {
   callbackUrlSchema,
   ReactivateAndSignInActionInput,
@@ -29,23 +28,6 @@ import {
 import { WebRoutes } from "@/lib/web.routes"
 
 export type SocialSignInResult = { ok: false }
-
-export async function deactivateAccountAction() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user?.id) {
-    redirect(WebRoutes.signIn.path)
-  }
-
-  await prisma.user.update({
-    where: { id: session.user.id },
-    data: { deactivatedAt: new Date() },
-  })
-
-  redirect(WebRoutes.feedback.path)
-}
 
 export async function signInWithGoogleAction(callbackURL: string): Promise<SocialSignInResult> {
   const safe = callbackUrlSchema.safeParse(callbackURL)

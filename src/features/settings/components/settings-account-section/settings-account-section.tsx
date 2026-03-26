@@ -1,10 +1,11 @@
 "use client"
 
 import { CheckCircle2, Mail, ShieldAlert, UserX } from "lucide-react"
-import { useRef, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
-import { deactivateAccountAction } from "@/lib/auth/auth.actions"
+import { WebRoutes } from "@/lib/web.routes"
 import type { SettingsAccountSessionUser } from "@/features/settings/types/settings-account-section.types"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,14 +21,15 @@ import { Separator } from "@/components/ui/separator"
 import { SettingsAccountSectionLayout } from "./settings-account-section-layout"
 
 export function SettingsAccountSection() {
+  const router = useRouter()
   const { data: session } = authClient.useSession()
   const user = session?.user as SettingsAccountSessionUser | undefined
   const isEmailVerified = user?.emailVerified === true
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false)
-  const deactivateFormRef = useRef<HTMLFormElement>(null)
 
   const handleConfirmDeactivate = () => {
-    deactivateFormRef.current?.requestSubmit()
+    setIsDeactivateDialogOpen(false)
+    router.push(WebRoutes.feedback.path)
   }
 
   return (
@@ -63,25 +65,23 @@ export function SettingsAccountSection() {
         title="Deactivate account"
         description="If you deactivate your account, your personal identifiers and records will be retained for 30 days and then permanently removed from our active systems. This action is final and ensures your data is no longer stored or processed by Imulogy, except where retention is required by law."
       >
-        <form ref={deactivateFormRef} action={deactivateAccountAction}>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-fit rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => setIsDeactivateDialogOpen(true)}
-          >
-            <UserX className="mr-2 h-3.5 w-3.5" />
-            Deactivate account
-          </Button>
-        </form>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-fit rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          onClick={() => setIsDeactivateDialogOpen(true)}
+        >
+          <UserX className="mr-2 h-3.5 w-3.5" />
+          Deactivate account
+        </Button>
         <Dialog open={isDeactivateDialogOpen} onOpenChange={setIsDeactivateDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Deactivate account?</DialogTitle>
               <DialogDescription>
-                This action will deactivate your account and redirect you to feedback. You can reactivate later by
-                signing in again.
+                You will be asked to submit a feedback form first. Your account will only be deactivated after feedback
+                is submitted.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>

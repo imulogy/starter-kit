@@ -9,10 +9,11 @@ type CreateDeactivationFeedbackInput = SubmitDeactivationFeedbackInput & {
   userId: string
 }
 
-export async function createDeactivationFeedback({ reason, userId }: CreateDeactivationFeedbackInput) {
+export async function createDeactivationFeedback({ category, reason, userId }: CreateDeactivationFeedbackInput) {
   await prisma.deactivationFeedback.create({
     data: {
       id: randomUUID(),
+      category,
       reason,
       userId,
     },

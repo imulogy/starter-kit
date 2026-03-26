@@ -12,8 +12,10 @@ import { createDeactivationFeedback } from "@/features/account-deactivation/repo
 import { submitDeactivationFeedbackSchema } from "@/features/account-deactivation/schemas/deactivation-feedback.schema"
 
 export async function submitDeactivationFeedbackAction(formData: FormData) {
+  const rawCategory = formData.get("category")
   const rawReason = formData.get("reason")
   const parsed = submitDeactivationFeedbackSchema.safeParse({
+    category: typeof rawCategory === "string" ? rawCategory : "",
     reason: typeof rawReason === "string" ? rawReason : "",
   })
 
@@ -30,8 +32,14 @@ export async function submitDeactivationFeedbackAction(formData: FormData) {
   }
 
   await createDeactivationFeedback({
+    category: parsed.data.category,
     reason: parsed.data.reason,
     userId: session.user.id,
+  })
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { deactivatedAt: new Date() },
   })
 
   await prisma.session.deleteMany({
