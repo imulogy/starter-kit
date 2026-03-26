@@ -43,7 +43,7 @@ const data = {
       {
         title: "Project 1",
         url: "#",
-        isActive: true,
+        isActive: false,
       },
       {
         title: "Project 2",
@@ -70,7 +70,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
       <SidebarHeader className="border-b pb-0">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
+            <SidebarMenuButton size="lg">
               <Logo />
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -81,7 +81,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
           <SidebarMenu>
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton asChild isActive={isNavItemActive(item.url)}>
+                <SidebarMenuButton asChild isActive={isNavItemActive(item.url) ? true : undefined}>
                   <Link href={item.url as Route}>
                     {item.icon}
                     <span>{item.title}</span>
@@ -113,7 +113,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
                 <SidebarMenu>
                   {data.collapsible.items.map((collapsibleItem) => (
                     <SidebarMenuItem key={collapsibleItem.title}>
-                      <SidebarMenuButton asChild isActive={collapsibleItem.isActive}>
+                      <SidebarMenuButton asChild isActive={undefined} data-active={undefined}>
                         <Link href={collapsibleItem.url as Route}>{collapsibleItem.title}</Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
