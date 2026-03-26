@@ -29,6 +29,12 @@ All product/feature logic lives under src/features/<feature-name>/ (hooks, compo
 src/app/ stays thin: routing, layouts, and wiring that imports from src/features (or shared libs). Do not grow heavy UI or business logic in route files—extract to a feature.
 Shared cross-feature code goes in src/lib/, src/hooks/ (only if truly shared), or small shared modules—not inside a single feature folder unless it is feature-private.
 
+API route strings (strict)
+
+Do not hardcode API endpoint strings inside feature API clients (e.g. "/api/chats", `/api/chats/${id}`).
+Centralize endpoint paths in src/lib/api.routes.ts (ApiRoutes) and consume those constants/functions from feature api modules.
+When adding a new endpoint, first extend ApiRoutes, then use it from src/features/<feature>/api/\*.api.ts.
+
 Server actions (where to put them)
 
 General-purpose or cross-cutting server actions (usable from many features, not tied to one domain slice) live under src/actions/<area>/ — e.g. src/actions/email/email.actions.ts for mail helpers. Organize by concern (email/, auth/, …), not by dumping unrelated exports in one file.

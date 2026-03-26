@@ -1,2 +1,0 @@
-export const SETTINGS_PROFILE_MAX_AGE = 120
-export const SETTINGS_PROFILE_MIN_AGE = 12

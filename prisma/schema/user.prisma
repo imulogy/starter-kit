@@ -11,6 +11,7 @@ model User {
   deactivatedAt DateTime?
   sessions      Session[]
   accounts      Account[]
+  chats         Chat[]
   deactivationFeedbacks DeactivationFeedback[]
 
   @@unique([email])

@@ -11,11 +11,30 @@ prisma.config.ts (repo root) defines the app datasource (DIRECT_URL via env), sc
 The generator in prisma/schema/base.prisma outputs the client to src/generated/prisma.
 test/prisma/ holds an additional schema tree and migrations for tests/assessment—same rules apply when editing there.
 
+Domain-first schema files (required)
+
+When adding a new product/domain area, create a dedicated Prisma schema file under prisma/schema/ for that domain instead of appending everything to an unrelated file.
+Examples:
+- AI chat history/messages -> prisma/schema/ai.prisma
+- Billing -> prisma/schema/billing.prisma
+- Keep auth/account models in prisma/schema/user.prisma
+
+Do not mix unrelated domains in one file when a separate domain file is appropriate. Cross-file relations are expected and allowed in multi-file Prisma schemas.
+
 What the agent may do
 
 Edit Prisma model files under the relevant schema/ folder(s).
 Add or edit SQL under migrations/<timestamp>\_<name>/migration.sql (or new migration folders) when schema changes require it.
 Keep naming and structure consistent with existing migrations in the repo.
+When introducing relations, explicitly review delete behavior and choose whether onDelete: Cascade is needed (required review step, not optional).
+
+Cascade review checklist (required)
+
+For every new or changed relation:
+- Decide if child rows are meaningless without parent row (ownership relation). If yes, use onDelete: Cascade.
+- If child rows must be preserved independently, do not use Cascade; choose Restrict/NoAction/SetNull as appropriate.
+- Validate both direct and transitive deletes (e.g. User -> Chat -> Message).
+- Reflect that choice in both Prisma schema and SQL migration constraints.
 
 What the user runs (do not execute from the agent)
 
