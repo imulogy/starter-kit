@@ -113,9 +113,12 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
                 <SidebarMenu>
                   {data.collapsible.items.map((collapsibleItem) => (
                     <SidebarMenuItem key={collapsibleItem.title}>
-                      <SidebarMenuButton asChild isActive={undefined} data-active={undefined}>
-                        <Link href={collapsibleItem.url as Route}>{collapsibleItem.title}</Link>
-                      </SidebarMenuButton>
+                      <Link
+                        href={collapsibleItem.url as Route}
+                        className="flex h-8 items-center rounded-md px-2 text-sm text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      >
+                        {collapsibleItem.title}
+                      </Link>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
