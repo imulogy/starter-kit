@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import * as React from "react"
 
 import { WebRoutes } from "@/lib/web.routes"
+import { SearchForm } from "@/components/dashboard/search-form"
 import { Logo } from "@/components/logo"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
@@ -75,6 +76,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+        <SearchForm />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
