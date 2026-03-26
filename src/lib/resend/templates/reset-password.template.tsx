@@ -1,24 +1,14 @@
 import { Body, Button, Container, Head, Html, Img, Preview, Section, Tailwind, Text } from "@react-email/components"
 
 import { SiteConfig } from "@/lib/site-config"
+import { WebRoutes } from "@/lib/web.routes"
 
 interface ResetPasswordEmailTemplateProps {
   userFirstname?: string
   resetPasswordLink?: string
-  messages?: {
-    preview: string
-    hi: string
-    intro: string
-    resetButton: string
-    ignore: string
-    signature: string
-  }
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_DOMAIN ? `${process.env.NEXT_PUBLIC_DOMAIN}` : ""
-const name = SiteConfig.name
-
-function getDefaultMessages() {
+function getDefaultMessages(name: string) {
   return {
     preview: `${name} reset your password`,
     hi: "Hi {userFirstname},",
@@ -29,12 +19,8 @@ function getDefaultMessages() {
   }
 }
 
-export const ResetPasswordEmailTemplate = ({
-  userFirstname,
-  resetPasswordLink,
-  messages,
-}: ResetPasswordEmailTemplateProps) => {
-  const m = messages ?? getDefaultMessages()
+export const ResetPasswordEmailTemplate = ({ userFirstname, resetPasswordLink }: ResetPasswordEmailTemplateProps) => {
+  const m = getDefaultMessages(SiteConfig.name)
   const hiText = m.hi.replace("{userFirstname}", userFirstname ?? "")
 
   return (
@@ -44,7 +30,12 @@ export const ResetPasswordEmailTemplate = ({
         <Body className="bg-[#f6f9fc] py-2.5">
           <Preview>{m.preview}</Preview>
           <Container className="border border-solid border-[#f0f0f0] bg-white p-[45px]">
-            <Img src={`${baseUrl}/favicon-32x32.png`} width="40" height="33" alt={SiteConfig.name} />
+            <Img
+              src={`${WebRoutes.root.withBaseUrl()}/favicon-32x32.png`}
+              width="40"
+              height="33"
+              alt={SiteConfig.name}
+            />
             <Section>
               <Text className="font-dropbox text-base leading-[26px] font-light text-[#404040]">{hiText}</Text>
               <Text className="font-dropbox text-base leading-[26px] font-light text-[#404040]">{m.intro}</Text>

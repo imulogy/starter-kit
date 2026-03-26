@@ -26,7 +26,7 @@ const data = {
   navMain: [
     {
       title: "Home",
-      url: WebRoutes.home.path,
+      url: WebRoutes.root.path,
       icon: <HomeIcon />,
       isActive: true,
     },
@@ -58,7 +58,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
   const pathname = usePathname()
 
   const isNavItemActive = (path: string) => {
-    if (path === WebRoutes.home.path) {
+    if (path === WebRoutes.root.path) {
       return pathname === path
     }
 

@@ -14,15 +14,15 @@ export default function NotFound() {
         </p>
         <div className="flex w-full max-w-sm flex-col gap-3 sm:flex-row sm:justify-center">
           <Button asChild className="w-full sm:w-auto">
-            <Link href={WebRoutes.home.path}>Go back home</Link>
+            <Link href={WebRoutes.root.path}>Go back home</Link>
           </Button>
           <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href={WebRoutes.home.path}>Go to dashboard</Link>
+            <Link href={WebRoutes.root.path}>Go to dashboard</Link>
           </Button>
         </div>
         <p className="mt-8 text-sm text-muted-foreground">
           <Link
-            href={WebRoutes.home.path}
+            href={WebRoutes.root.path}
             className="underline underline-offset-4 transition-colors hover:text-foreground"
           >
             Need help? Contact support
