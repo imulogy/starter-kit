@@ -1,6 +1,6 @@
 import { Body, Button, Container, Head, Html, Img, Preview, Section, Tailwind, Text } from "@react-email/components"
 
-import { SiteConfig } from "@/lib/site-config"
+import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
 
 interface ResetPasswordEmailTemplateProps {

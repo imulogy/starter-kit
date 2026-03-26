@@ -1,3 +1,3 @@
 export const ApiRoutes = {
-  test: "/api/test",
+  authSignedIn: "/api/auth/signed-in",
 } as const

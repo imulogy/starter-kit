@@ -6,7 +6,7 @@ import { sendMail } from "@/lib/resend/resend"
 import { EmailVerificationEmailTemplate } from "@/lib/resend/templates/email-verification.template"
 import { ResetPasswordEmailTemplate } from "@/lib/resend/templates/reset-password.template"
 import { WelcomeEmailTemplate } from "@/lib/resend/templates/welcome.template"
-import { SiteConfig } from "@/lib/site-config"
+import { SiteConfig } from "@/lib/site.config"
 
 export const sendResetPasswordEmailSchema = z.object({
   userFirstname: z.string().trim().min(1, "userFirstname is required"),

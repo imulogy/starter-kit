@@ -12,7 +12,7 @@ import {
   Text,
 } from "@react-email/components"
 
-import { SiteConfig } from "@/lib/site-config"
+import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
 
 interface WelcomeEmailTemplateProps {

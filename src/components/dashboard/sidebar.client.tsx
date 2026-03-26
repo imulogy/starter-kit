@@ -6,7 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import * as React from "react"
 
-import { SiteConfig } from "@/lib/site-config"
+import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {

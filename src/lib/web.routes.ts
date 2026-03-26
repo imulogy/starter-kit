@@ -1,15 +1,17 @@
+import { Route } from "next"
+
 export const baseUrl = process.env.NEXT_PUBLIC_DOMAIN!
 
 type RouteDefinition = {
   label: string
-  path: string
+  path: Route
   withBaseUrl: () => string
 }
 
 function createRoute(label: string, path: string): RouteDefinition {
   return {
     label,
-    path,
+    path: path as Route,
     withBaseUrl: () => {
       if (!baseUrl) {
         return path
@@ -25,6 +27,9 @@ export const WebRoutes = {
   search: createRoute("Search", "/search"),
   askAi: createRoute("Ask AI", "/ai"),
   inbox: createRoute("Inbox", "/inbox"),
-  unsubscribe: createRoute("Unsubscribe", "/unsubscribe"),
+  signIn: createRoute("Sign In", "/sign-in"),
+  signUp: createRoute("Sign Up", "/sign-up"),
+  resetPassword: createRoute("Reset Password", "/reset-password"),
   verifyEmail: createRoute("Verify Email", "/verify-email"),
+  unsubscribe: createRoute("Unsubscribe", "/unsubscribe"),
 } as const
