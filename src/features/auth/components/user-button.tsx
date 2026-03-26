@@ -1,5 +1,6 @@
 "use client"
 
+import { LogOut, Settings } from "lucide-react"
 import { useState, useTransition } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
@@ -48,8 +49,12 @@ export function UserButton({ email }: UserButtonProps) {
         <DropdownMenuContent align="end" className="w-64">
           <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>Settings</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
+            <Settings className="mr-2 h-4 w-4" />
+            Settings
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut} disabled={isPending}>
+            <LogOut className="mr-2 h-4 w-4" />
             {isPending ? "Logging out..." : "Log out"}
           </DropdownMenuItem>
         </DropdownMenuContent>

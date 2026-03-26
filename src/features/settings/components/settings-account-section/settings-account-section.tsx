@@ -2,11 +2,16 @@
 
 import { CheckCircle2, Mail, ShieldAlert, UserX } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { WebRoutes } from "@/lib/web.routes"
-import type { SettingsAccountSessionUser } from "@/features/settings/types/settings-account-section.types"
+import { sendEmailVerificationAction } from "@/features/settings/actions/send-email-verification.action"
+import type {
+  SendEmailVerificationActionErrorCode,
+  SettingsAccountSessionUser,
+} from "@/features/settings/types/settings-account-section.types"
+import { formatResendTime } from "@/features/settings/utils/settings-account-section.utils"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -26,10 +31,58 @@ export function SettingsAccountSection() {
   const user = session?.user as SettingsAccountSessionUser | undefined
   const isEmailVerified = user?.emailVerified === true
   const [isDeactivateDialogOpen, setIsDeactivateDialogOpen] = useState(false)
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
+  const [hasSentVerification, setHasSentVerification] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
+  const [verificationError, setVerificationError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return
+
+    const timer = setTimeout(() => {
+      setResendCooldown((previous) => Math.max(0, previous - 1))
+    }, 1000)
+
+    return () => clearTimeout(timer)
+  }, [resendCooldown])
 
   const handleConfirmDeactivate = () => {
     setIsDeactivateDialogOpen(false)
     router.push(WebRoutes.feedback.path)
+  }
+
+  const getEmailVerificationErrorMessage = (code: SendEmailVerificationActionErrorCode): string => {
+    if (code === "RATE_LIMITED") {
+      return "Too many attempts. Please wait a minute and try again."
+    }
+
+    if (code === "UNAUTHORIZED") {
+      return "Please sign in again to verify your email."
+    }
+
+    return "Failed to send verification email. Please try again."
+  }
+
+  const handleSendVerification = async () => {
+    if (!user?.email || isSendingVerification || resendCooldown > 0) {
+      return
+    }
+
+    setVerificationError(null)
+    setIsSendingVerification(true)
+
+    const callbackURL = `${WebRoutes.root.withBaseUrl()}?emailVerified=1`
+    const result = await sendEmailVerificationAction({ callbackURL })
+
+    if (result.ok) {
+      setHasSentVerification(true)
+      setResendCooldown(60)
+      setIsSendingVerification(false)
+      return
+    }
+
+    setVerificationError(getEmailVerificationErrorMessage(result.code))
+    setIsSendingVerification(false)
   }
 
   return (
@@ -55,6 +108,32 @@ export function SettingsAccountSection() {
               </span>
             )}
           </div>
+
+          {!isEmailVerified && (
+            <div className="flex flex-col gap-2">
+              {hasSentVerification && (
+                <>
+                  <p className="text-sm text-muted-foreground">Verification email sent. Please check your inbox.</p>
+                  <p className="text-sm text-muted-foreground">If you do not see it, check your spam or junk folder.</p>
+                </>
+              )}
+              <Button
+                variant="outline"
+                className="w-full rounded-xl"
+                onClick={() => void handleSendVerification()}
+                disabled={isSendingVerification || resendCooldown > 0}
+              >
+                {isSendingVerification
+                  ? "Sending..."
+                  : resendCooldown > 0
+                    ? `Resend verification in ${formatResendTime(resendCooldown)}`
+                    : hasSentVerification
+                      ? "Resend verification email"
+                      : "Send verification email"}
+              </Button>
+              {verificationError && <p className="text-sm text-destructive">{verificationError}</p>}
+            </div>
+          )}
         </div>
       </SettingsAccountSectionLayout>
 
