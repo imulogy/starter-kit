@@ -8,16 +8,13 @@ import {
 } from "@/features/settings/schemas/notification-preferences.schema"
 
 export async function getAccountNotificationPreferences(userId: string): Promise<NotificationPreferences | null> {
-  const rows = await prisma.$queryRaw<Array<{ notificationsEmailMarketing: boolean; notificationsEmailPersonalized: boolean }>>`
-    SELECT
-      "notificationsEmailMarketing",
-      "notificationsEmailPersonalized"
-    FROM "user"
-    WHERE "id" = ${userId}
-    LIMIT 1
-  `
-
-  const row = rows[0]
+  const row = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      notificationsEmailMarketing: true,
+      notificationsEmailPersonalized: true,
+    },
+  })
 
   if (!row) {
     return null
@@ -35,36 +32,28 @@ export async function updateAccountNotificationPreferences(
   userId: string,
   values: UpdateNotificationPreferencesInput
 ): Promise<NotificationPreferences | null> {
-  const updateData: string[] = []
-  const queryValues: Array<boolean | string> = []
-
-  if (typeof values.notificationsEmailMarketing === "boolean") {
-    updateData.push(`"notificationsEmailMarketing" = $${queryValues.length + 1}`)
-    queryValues.push(values.notificationsEmailMarketing)
-  }
-
-  if (typeof values.notificationsEmailPersonalized === "boolean") {
-    updateData.push(`"notificationsEmailPersonalized" = $${queryValues.length + 1}`)
-    queryValues.push(values.notificationsEmailPersonalized)
-  }
-
-  if (updateData.length === 0) {
+  if (
+    typeof values.notificationsEmailMarketing !== "boolean" &&
+    typeof values.notificationsEmailPersonalized !== "boolean"
+  ) {
     return getAccountNotificationPreferences(userId)
   }
 
-  queryValues.push(userId)
-
-  const rows = await prisma.$queryRawUnsafe<Array<{ notificationsEmailMarketing: boolean; notificationsEmailPersonalized: boolean }>>(
-    `
-      UPDATE "user"
-      SET ${updateData.join(", ")}
-      WHERE "id" = $${queryValues.length}
-      RETURNING "notificationsEmailMarketing", "notificationsEmailPersonalized"
-    `,
-    ...queryValues
-  )
-
-  const row = rows[0]
+  const row = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      ...(typeof values.notificationsEmailMarketing === "boolean"
+        ? { notificationsEmailMarketing: values.notificationsEmailMarketing }
+        : {}),
+      ...(typeof values.notificationsEmailPersonalized === "boolean"
+        ? { notificationsEmailPersonalized: values.notificationsEmailPersonalized }
+        : {}),
+    },
+    select: {
+      notificationsEmailMarketing: true,
+      notificationsEmailPersonalized: true,
+    },
+  })
   if (!row) {
     return null
   }

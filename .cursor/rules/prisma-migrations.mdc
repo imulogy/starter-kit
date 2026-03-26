@@ -14,7 +14,7 @@ test/prisma/ holds an additional schema tree and migrations for tests/assessment
 What the agent may do
 
 Edit Prisma model files under the relevant schema/ folder(s).
-Add or edit SQL under migrations/<timestamp>_<name>/migration.sql (or new migration folders) when schema changes require it.
+Add or edit SQL under migrations/<timestamp>\_<name>/migration.sql (or new migration folders) when schema changes require it.
 Keep naming and structure consistent with existing migrations in the repo.
 
 What the user runs (do not execute from the agent)
@@ -26,3 +26,9 @@ Client generation
 
 prisma generate (e.g. npm run prisma:generate / bun run prisma:generate per package.json) updates the generated client under src/generated/prisma; it is not the same as applying migrations to the DB.
 Only run generate if the user explicitly asks or the task clearly requires a fresh client; otherwise the user or CI may run it.
+
+Prisma query style (default)
+
+Prefer Prisma Client queries (findUnique/findMany/create/update/upsert/delete, select/include, transactions) over raw SQL.
+Avoid prisma.$queryRaw and prisma.$queryRawUnsafe as much as possible.
+Use raw queries only when Prisma Client cannot express the required operation cleanly or efficiently, and keep that usage minimal, documented, and parameterized safely.

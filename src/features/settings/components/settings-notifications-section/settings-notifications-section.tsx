@@ -1,62 +1,36 @@
 "use client"
 
 import { Bell, Megaphone } from "lucide-react"
-import { useEffect, useState, useTransition } from "react"
 
-import {
-  getNotificationPreferencesAction,
-} from "@/actions/account/get-notification-preferences.action"
-import { updateNotificationPreferencesAction } from "@/actions/account/update-notification-preferences.action"
+import { useFetchNotificationPreferences } from "@/features/settings/hooks/use-fetch-notification-preferences"
+import { useMutateNotificationPreferences } from "@/features/settings/hooks/use-mutate-notification-preferences"
 import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 
 import { SettingsNotificationSubsection } from "./settings-notification-subsection"
+import { SettingsNotificationsSectionSkeleton } from "./settings-notifications-section-skeleton"
 
 export function SettingsNotificationsSection() {
-  const [isPending, startTransition] = useTransition()
-  const [notificationsEmailPersonalized, setNotificationsEmailPersonalized] = useState(true)
-  const [notificationsEmailMarketing, setNotificationsEmailMarketing] = useState(true)
+  const preferencesQuery = useFetchNotificationPreferences()
+  const preferencesMutation = useMutateNotificationPreferences()
 
-  useEffect(() => {
-    startTransition(async () => {
-      const result = await getNotificationPreferencesAction()
+  if (preferencesQuery.isLoading) {
+    return <SettingsNotificationsSectionSkeleton />
+  }
 
-      if (!result.ok) {
-        return
-      }
-
-      setNotificationsEmailPersonalized(result.data.notificationsEmailPersonalized)
-      setNotificationsEmailMarketing(result.data.notificationsEmailMarketing)
-    })
-  }, [])
+  if (preferencesQuery.isError || !preferencesQuery.data) {
+    return <SettingsNotificationsSectionSkeleton />
+  }
 
   const handlePersonalizedChange = (checked: boolean) => {
-    const previous = notificationsEmailPersonalized
-    setNotificationsEmailPersonalized(checked)
-
-    startTransition(async () => {
-      const result = await updateNotificationPreferencesAction({
-        notificationsEmailPersonalized: checked,
-      })
-
-      if (!result.ok) {
-        setNotificationsEmailPersonalized(previous)
-      }
+    preferencesMutation.mutate({
+      notificationsEmailPersonalized: checked,
     })
   }
 
   const handleMarketingChange = (checked: boolean) => {
-    const previous = notificationsEmailMarketing
-    setNotificationsEmailMarketing(checked)
-
-    startTransition(async () => {
-      const result = await updateNotificationPreferencesAction({
-        notificationsEmailMarketing: checked,
-      })
-
-      if (!result.ok) {
-        setNotificationsEmailMarketing(previous)
-      }
+    preferencesMutation.mutate({
+      notificationsEmailMarketing: checked,
     })
   }
 
@@ -67,7 +41,11 @@ export function SettingsNotificationsSection() {
         title="Personalized emails"
         description="Receive product reminders and service updates by email."
         toggle={
-          <Switch checked={notificationsEmailPersonalized} onCheckedChange={handlePersonalizedChange} disabled={isPending} />
+          <Switch
+            checked={preferencesQuery.data.notificationsEmailPersonalized}
+            onCheckedChange={handlePersonalizedChange}
+            disabled={preferencesMutation.isPending}
+          />
         }
       />
 
@@ -77,7 +55,13 @@ export function SettingsNotificationsSection() {
         icon={Megaphone}
         title="Marketing emails"
         description="Receive promotions and feature announcements."
-        toggle={<Switch checked={notificationsEmailMarketing} onCheckedChange={handleMarketingChange} disabled={isPending} />}
+        toggle={
+          <Switch
+            checked={preferencesQuery.data.notificationsEmailMarketing}
+            onCheckedChange={handleMarketingChange}
+            disabled={preferencesMutation.isPending}
+          />
+        }
       />
     </div>
   )
