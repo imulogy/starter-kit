@@ -226,12 +226,12 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
   )
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="space-y-3">
       <DialogHeader>
         <DialogTitle className="text-center">{texts.signUpTitle.replace("{name}", SiteConfig.name)}</DialogTitle>
         <DialogDescription className="text-center"> {texts.signUpDescription}</DialogDescription>
       </DialogHeader>
-      {formBody}
+      <div>{formBody}</div>
     </div>
   )
 }

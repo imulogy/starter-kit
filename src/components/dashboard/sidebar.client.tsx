@@ -1,13 +1,13 @@
 "use client"
 
-import { ChevronRight, HomeIcon, Sparkles, SparklesIcon } from "lucide-react"
+import { ChevronRight, HomeIcon, SparklesIcon } from "lucide-react"
 import { Route } from "next"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import * as React from "react"
 
-import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
+import { Logo } from "@/components/logo"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   Sidebar as SidebarComponent,
@@ -71,14 +71,7 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-foreground text-sidebar-primary-foreground">
-                  <Sparkles className="size-4" fill="var(--background)" strokeWidth={2} />
-                </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-medium">{SiteConfig.name}</span>
-                </div>
-              </a>
+              <Logo />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

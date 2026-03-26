@@ -31,5 +31,5 @@ export const WebRoutes = {
   signUp: createRoute("Sign Up", "/sign-up"),
   resetPassword: createRoute("Reset Password", "/reset-password"),
   verifyEmail: createRoute("Verify Email", "/verify-email"),
-  unsubscribe: createRoute("Unsubscribe", "/unsubscribe"),
+  emailUnsubscribe: createRoute("Email Preferences", "/email-unsubscribe"),
 } as const

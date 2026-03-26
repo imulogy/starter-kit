@@ -64,7 +64,7 @@ export const WelcomeEmailTemplate = ({ firstName }: WelcomeEmailTemplateProps) =
             <Text className="mt-8 text-center text-xs text-[#6a737d]">{m.ignoreEmail}</Text>
 
             <Text className="mt-4 text-center text-[11px] text-[#8b949e]">
-              <Link href={WebRoutes.unsubscribe.withBaseUrl()} className="text-[#8b949e] underline">
+              <Link href={WebRoutes.emailUnsubscribe.withBaseUrl()} className="text-[#8b949e] underline">
                 {m.unsubscribe}
               </Link>
             </Text>

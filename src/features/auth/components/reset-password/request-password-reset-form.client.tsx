@@ -1,70 +1,66 @@
 "use client"
 
-import { useForm } from "@tanstack/react-form"
-import { useTranslations } from "next-intl"
+import { zodResolver } from "@hookform/resolvers/zod"
 import Link from "next/link"
-import { useParams } from "next/navigation"
-import { useEffect, useRef, useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
+import { useForm } from "react-hook-form"
+import z from "zod"
 
+import { requestPasswordResetAction } from "@/lib/auth/auth.actions"
 import { requestPasswordResetSchema } from "@/lib/auth/auth.schema"
-import { WebRoutes } from "@/lib/config/web-routes"
-import { requestPasswordResetAction } from "@/features/auth/actions/request-password-reset.action"
+import { WebRoutes } from "@/lib/web.routes"
 import {
   ACCOUNT_DEACTIVATED,
   ACCOUNT_DEACTIVATED_RESET_PASSWORD_MESSAGE,
   UNKNOWN_ERROR_CODE,
 } from "@/features/auth/constants"
-import type { RequestPasswordResetFormProps } from "@/features/auth/types/request-password-reset.types"
-import { mapRequestPasswordResetError } from "@/features/auth/utils/request-password-reset-form.utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
-export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetFormProps) {
-  const params = useParams()
-  const locale = serverLocale ?? (params?.locale as string) ?? "en"
-  const t = useTranslations("auth")
+const texts = {
+  resetPasswordTitle: "Reset password",
+  requestResetDescription: "Enter your email to receive a password reset link.",
+  emailSentDescription: "If an account exists, we sent you an email with reset instructions.",
+  signInToReactivate: "Sign in to reactivate",
+  email: "Email",
+  emailPlaceholder: "example@gmail.com",
+  sendResetEmail: "Send reset email",
+  resetPasswordButton: "Send reset link",
+  resendAria: "Resend reset email",
+  resendEmail: "Resend email",
+  rememberPassword: "Remember your password?",
+  signIn: "Sign in",
+}
+
+export function RequestPasswordResetForm() {
   const [isLoading, startTransition] = useTransition()
   const [requestErrorCode, setRequestErrorCode] = useState<string | null>(null)
   const [emailSent, setEmailSent] = useState(false)
   const [resendTimer, setResendTimer] = useState(0)
   const [resendLoading, setResendLoading] = useState(false)
-  const timerStartedRef = useRef(false)
 
-  const form = useForm({
-    defaultValues: {
-      email: "",
-    },
-    validators: {
-      onSubmit: requestPasswordResetSchema,
-    },
-    onSubmit: ({ value }) => {
-      startTransition(async () => {
-        setRequestErrorCode(null)
-        const result = await requestPasswordResetAction({
-          email: value.email,
-          locale,
-        })
-
-        if (result?.ok) {
-          setEmailSent(true)
-          setResendTimer(60)
-        } else if (result && result.ok === false) {
-          setRequestErrorCode(result.code ?? UNKNOWN_ERROR_CODE)
-        }
-      })
-    },
+  const form = useForm<z.infer<typeof requestPasswordResetSchema>>({
+    resolver: zodResolver(requestPasswordResetSchema),
+    defaultValues: { email: "" },
   })
 
-  useEffect(() => {
-    if (emailSent && !timerStartedRef.current) {
-      setResendTimer(60)
+  const handleSubmit = form.handleSubmit((values) => {
+    startTransition(async () => {
       setRequestErrorCode(null)
-      timerStartedRef.current = true
-    }
-    if (!emailSent) timerStartedRef.current = false
-  }, [emailSent, resendTimer])
+      const result = await requestPasswordResetAction({
+        email: values.email,
+      })
+
+      if (result?.ok) {
+        setEmailSent(true)
+        setResendTimer(60)
+      } else if (result && result.ok === false) {
+        setRequestErrorCode(result.code ?? UNKNOWN_ERROR_CODE)
+      }
+    })
+  })
 
   useEffect(() => {
     if (!emailSent || resendTimer <= 0) return
@@ -73,9 +69,7 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
       setResendTimer((prev) => Math.max(0, prev - 1))
     }, 1000)
 
-    return () => {
-      clearTimeout(timer)
-    }
+    return () => clearTimeout(timer)
   }, [emailSent, resendTimer])
 
   const handleResend = async () => {
@@ -84,8 +78,7 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
     setResendLoading(true)
     try {
       const result = await requestPasswordResetAction({
-        email: form.state.values.email,
-        locale,
+        email: form.getValues("email"),
       })
 
       if (result?.ok) {
@@ -101,30 +94,12 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60)
     const secs = seconds % 60
-
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
   const isDeactivated = requestErrorCode === ACCOUNT_DEACTIVATED
-
-  const requestErrorLabel =
-    requestErrorCode === null
-      ? null
-      : (() => {
-          const mapped = mapRequestPasswordResetError(requestErrorCode)
-
-          if (mapped.kind === "raw") {
-            return mapped.message
-          }
-
-          return t(mapped.key)
-        })()
-
-  let cardDescription: string | null = null
-
-  if (!isDeactivated) {
-    cardDescription = emailSent ? t("emailSentDescription") : t("requestResetDescription")
-  }
+  const requestErrorLabel = requestErrorCode ? getRequestPasswordResetErrorMessage(requestErrorCode) : null
+  const cardDescription = isDeactivated ? null : emailSent ? texts.emailSentDescription : texts.requestResetDescription
 
   return (
     <Card
@@ -135,7 +110,7 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
       }
     >
       <CardHeader>
-        <CardTitle className="text-xl font-bold">{t("resetPasswordTitle")}</CardTitle>
+        <CardTitle className="text-xl font-bold">{texts.resetPasswordTitle}</CardTitle>
         {cardDescription && <CardDescription>{cardDescription}</CardDescription>}
       </CardHeader>
       <CardContent>
@@ -143,54 +118,42 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
           <div className="flex min-h-0 flex-col items-center gap-3 text-center">
             <p className="text-sm text-muted-foreground">{ACCOUNT_DEACTIVATED_RESET_PASSWORD_MESSAGE}</p>
             <Link
-              href={WebRoutes.withLocale(locale, WebRoutes.signIn)}
+              href={WebRoutes.signIn.path}
               className="inline-flex font-medium text-primary underline underline-offset-2"
             >
-              {t("signInToReactivate")}
+              {texts.signInToReactivate}
             </Link>
           </div>
         ) : (
-          <form
-            onSubmit={(e) => {
-              e.preventDefault()
-              void form.handleSubmit()
-            }}
-          >
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <div className="flex flex-col items-center gap-2 text-center text-sm">
                 {requestErrorLabel && <p className="text-red-500">{requestErrorLabel}</p>}
               </div>
               {!emailSent && (
                 <>
-                  <form.Field name="email">
-                    {(field) => {
-                      const isInvalid = field.state.meta.isTouched && !field.state.meta.isValid
-
-                      return (
-                        <Field data-invalid={isInvalid}>
-                          <FieldLabel htmlFor={field.name}>{t("email")}</FieldLabel>
-                          <Input
-                            id={field.name}
-                            name={field.name}
-                            value={field.state.value}
-                            onBlur={field.handleBlur}
-                            onChange={(e) => {
-                              field.handleChange(e.target.value)
-                              if (requestErrorCode) setRequestErrorCode(null)
-                            }}
-                            aria-invalid={isInvalid}
-                            placeholder={t("emailPlaceholder")}
-                            autoComplete="email"
-                            required
-                          />
-                          {isInvalid && <FieldError errors={field.state.meta.errors} />}
-                        </Field>
-                      )
-                    }}
-                  </form.Field>
+                  <Field data-invalid={Boolean(form.formState.errors.email)}>
+                    <FieldLabel htmlFor="email">{texts.email}</FieldLabel>
+                    <Input
+                      id="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder={texts.emailPlaceholder}
+                      aria-invalid={Boolean(form.formState.errors.email)}
+                      {...form.register("email", {
+                        onChange: () => {
+                          if (requestErrorCode) setRequestErrorCode(null)
+                        },
+                      })}
+                    />
+                    {form.formState.errors.email?.message && (
+                      <FieldError errors={[{ message: form.formState.errors.email.message }]} />
+                    )}
+                  </Field>
                   <Field>
-                    <Button type="submit" isLoading={isLoading} disabled={isLoading} aria-label={t("sendResetEmail")}>
-                      {t("resetPasswordButton")}
+                    <Button type="submit" isLoading={isLoading} disabled={isLoading} aria-label={texts.sendResetEmail}>
+                      {texts.resetPasswordButton}
                     </Button>
                   </Field>
                 </>
@@ -204,17 +167,17 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
                     isLoading={resendLoading}
                     disabled={resendTimer > 0 || resendLoading}
                     aria-label={
-                      resendTimer > 0 ? t("resendAriaIn", { time: formatTime(resendTimer) }) : t("resendAria")
+                      resendTimer > 0 ? `${texts.resendAria} in ${formatTime(resendTimer)}` : texts.resendAria
                     }
                   >
-                    {resendTimer > 0 ? t("resendIn", { time: formatTime(resendTimer) }) : t("resendEmail")}
+                    {resendTimer > 0 ? `Resend in ${formatTime(resendTimer)}` : texts.resendEmail}
                   </Button>
                 </Field>
               )}
               <FieldDescription className="flex items-center justify-center gap-2 text-center text-sm">
-                <span>{t("rememberPassword")} </span>
-                <Link className="text-xs underline" href={WebRoutes.withLocale(locale, WebRoutes.signIn)}>
-                  {t("signIn")}
+                <span>{texts.rememberPassword}</span>
+                <Link className="text-xs underline" href={WebRoutes.signIn.path}>
+                  {texts.signIn}
                 </Link>
               </FieldDescription>
             </FieldGroup>
@@ -223,4 +186,15 @@ export function RequestPasswordResetForm({ serverLocale }: RequestPasswordResetF
       </CardContent>
     </Card>
   )
+}
+
+function getRequestPasswordResetErrorMessage(code: string): string {
+  switch (code) {
+    case ACCOUNT_DEACTIVATED:
+      return ACCOUNT_DEACTIVATED_RESET_PASSWORD_MESSAGE
+    case "INVALID_EMAIL":
+      return "Invalid email address."
+    default:
+      return "An error occurred, please try again."
+  }
 }

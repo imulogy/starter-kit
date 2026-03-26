@@ -16,6 +16,10 @@ import {
   callbackUrlSchema,
   ReactivateAndSignInActionInput,
   reactivateAndSignInActionInputSchema,
+  RequestPasswordResetActionInput,
+  requestPasswordResetSchema,
+  ResetPasswordActionInput,
+  resetPasswordActionInputSchema,
   signInWithEmailAndPasswordActionInputSchema,
   signUpWithEmailAndPasswordActionInputSchema,
   type SignInWithEmailAndPasswordActionInput,
@@ -152,4 +156,53 @@ export async function signUpWithEmailAndPasswordAction(input: SignUpWithEmailAnd
     ok: true,
     redirectTo: WebRoutes.root.withBaseUrl(),
   } satisfies AuthRedirectSuccess
+}
+
+export async function resetPasswordTokenAction(input: ResetPasswordActionInput) {
+  const parsed = resetPasswordActionInputSchema.safeParse(input)
+
+  if (!parsed.success) {
+    return { ok: false, code: "INVALID_TOKEN" }
+  }
+
+  const { newPassword, token } = parsed.data
+
+  try {
+    await auth.api.resetPassword({
+      body: {
+        newPassword,
+        token,
+      },
+      headers: await headers(),
+    })
+  } catch (error: unknown) {
+    return { ok: false, code: getAuthApiErrorCode(error) }
+  }
+
+  return {
+    ok: true,
+    redirectTo: WebRoutes.signIn.withBaseUrl(),
+  } satisfies AuthRedirectSuccess
+}
+
+export async function requestPasswordResetAction(input: RequestPasswordResetActionInput) {
+  const parsed = requestPasswordResetSchema.safeParse(input)
+
+  if (!parsed.success) {
+    return { ok: false, code: "INVALID_EMAIL" }
+  }
+
+  try {
+    await auth.api.requestPasswordReset({
+      body: {
+        email: parsed.data.email,
+        redirectTo: WebRoutes.resetPassword.withBaseUrl(),
+      },
+      headers: await headers(),
+    })
+  } catch (error: unknown) {
+    return { ok: false, code: getAuthApiErrorCode(error) }
+  }
+
+  return { ok: true }
 }

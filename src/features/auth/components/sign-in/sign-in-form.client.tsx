@@ -284,15 +284,13 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
   )
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="space-y-3">
       <DialogHeader>
         <DialogTitle className="text-center">{texts.signInTitle.replace("{name}", SiteConfig.name)}</DialogTitle>
         <DialogDescription className="text-center"> {texts.signInDescription}</DialogDescription>
       </DialogHeader>
-      <div>
-        {formContent}
-        {reactivateDialog}
-      </div>
+      {formContent}
+      {reactivateDialog}
     </div>
   )
 }

@@ -25,6 +25,8 @@ export const requestPasswordResetSchema = z.object({
   email: z.email("Invalid email address"),
 })
 
+export type RequestPasswordResetActionInput = z.infer<typeof requestPasswordResetSchema>
+
 export const resetPasswordSchema = z
   .object({
     newPassword: passwordSchema,
@@ -56,3 +58,9 @@ export const signUpWithEmailAndPasswordActionInputSchema = signUpWithEmailAndPas
 })
 
 export type SignUpWithEmailAndPasswordActionInput = z.infer<typeof signUpWithEmailAndPasswordActionInputSchema>
+
+export const resetPasswordActionInputSchema = resetPasswordSchema.extend({
+  token: z.string().min(1),
+})
+
+export type ResetPasswordActionInput = z.infer<typeof resetPasswordActionInputSchema>
