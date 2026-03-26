@@ -11,7 +11,7 @@ import { AuthRequiredModalDialogLazy } from "@/features/auth/components/auth-req
 
 export function AuthRequiredModalProvider({ children }: AuthRequiredModalProviderProps) {
   const [open, setOpen] = useState(false)
-  const [activeTab, setActiveTab] = useState<"signin" | "signup">("signin")
+  const [activeTab, setActiveTab] = useState<"signin" | "signup" | "forgot">("signin")
 
   const openAuthModal = useCallback(() => {
     setActiveTab("signin")

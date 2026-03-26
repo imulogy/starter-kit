@@ -1,7 +1,9 @@
 "use client"
 
+import { updateNotificationPreferencesAction } from "@/actions/account/update-notification-preferences.action"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff } from "lucide-react"
+import Link from "next/link"
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
 import z from "zod"
@@ -11,8 +13,10 @@ import { authClient } from "@/lib/auth/auth-client"
 import { signInWithGoogleAction, signUpWithEmailAndPasswordAction } from "@/lib/auth/auth.actions"
 import { signUpWithEmailAndPasswordSchema } from "@/lib/auth/auth.schema"
 import { SiteConfig } from "@/lib/site.config"
+import { WebRoutes } from "@/lib/web.routes"
 import { UNKNOWN_ERROR_CODE } from "@/features/auth/constants"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldSeparator } from "@/components/ui/field"
 import { GoogleIcon } from "@/components/ui/icons/google.icon"
@@ -45,6 +49,10 @@ const texts = {
   termsOfService: "Terms of Service",
   privacyPolicy: "Privacy Policy",
   alreadyHaveAccount: "Already have an account?",
+  personalizedEmails: "Personalized emails",
+  personalizedEmailsDescription: "Receive product reminders and service updates.",
+  marketingEmails: "Marketing emails",
+  marketingEmailsDescription: "Receive promotions and feature announcements.",
 }
 
 export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
@@ -56,7 +64,13 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
 
   const form = useForm<z.infer<typeof signUpWithEmailAndPasswordSchema>>({
     resolver: zodResolver(signUpWithEmailAndPasswordSchema),
-    defaultValues: { email: "", password: "", confirmPassword: "" },
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      notificationsEmailMarketing: true,
+      notificationsEmailPersonalized: true,
+    },
   })
 
   const clearErrorCode = () => {
@@ -70,10 +84,16 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
         email: values.email,
         password: values.password,
         confirmPassword: values.confirmPassword,
+        notificationsEmailMarketing: values.notificationsEmailMarketing,
+        notificationsEmailPersonalized: values.notificationsEmailPersonalized,
         embedded: true,
       })
       if (result.ok) {
         await refetchSession()
+        await updateNotificationPreferencesAction({
+          notificationsEmailMarketing: values.notificationsEmailMarketing,
+          notificationsEmailPersonalized: values.notificationsEmailPersonalized,
+        })
         onSuccess()
         return
       }
@@ -197,6 +217,26 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
             <FieldError errors={[{ message: form.formState.errors.confirmPassword.message }]} />
           )}
         </Field>
+        <Field className="mt-1 rounded-xl border p-3">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="notificationsEmailPersonalized"
+              checked={form.watch("notificationsEmailPersonalized")}
+              onCheckedChange={(checked) => form.setValue("notificationsEmailPersonalized", checked === true)}
+            />
+            <FieldDescription className="text-xs">{texts.personalizedEmailsDescription}</FieldDescription>
+          </div>
+        </Field>
+        <Field className="rounded-xl border p-3">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="notificationsEmailMarketing"
+              checked={form.watch("notificationsEmailMarketing")}
+              onCheckedChange={(checked) => form.setValue("notificationsEmailMarketing", checked === true)}
+            />
+            <FieldDescription className="text-xs">{texts.marketingEmailsDescription}</FieldDescription>
+          </div>
+        </Field>
         <Field>
           <Button
             className="font-bold"
@@ -209,7 +249,15 @@ export function SignUpForm({ onSuccess, onSwitchToSignIn }: SignUpFormProps) {
           </Button>
         </Field>
         <FieldDescription className="px-4 text-center text-xs">
-          {texts.termsPrefix} {texts.termsOfService} {texts.termsSuffix} {texts.privacyPolicy}.
+          {texts.termsPrefix}{" "}
+          <Link href={WebRoutes.termsOfService.path} className="underline underline-offset-2 hover:text-foreground">
+            {texts.termsOfService}
+          </Link>{" "}
+          {texts.termsSuffix}{" "}
+          <Link href={WebRoutes.privacyPolicy.path} className="underline underline-offset-2 hover:text-foreground">
+            {texts.privacyPolicy}
+          </Link>
+          .
         </FieldDescription>
         <FieldDescription className="flex items-center justify-center gap-1 pt-2 text-center text-xs">
           <span className="text-muted-foreground">{texts.alreadyHaveAccount}</span>

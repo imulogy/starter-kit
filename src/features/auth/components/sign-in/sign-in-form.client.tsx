@@ -2,7 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useState, useTransition } from "react"
 import { useForm } from "react-hook-form"
@@ -16,7 +15,6 @@ import {
 } from "@/lib/auth/auth.actions"
 import { signInWithEmailAndPasswordSchema } from "@/lib/auth/auth.schema"
 import { SiteConfig } from "@/lib/site.config"
-import { WebRoutes } from "@/lib/web.routes"
 import { buildPostAuthCallbackUrl } from "@/features/auth/components/sign-in/sign-in-callback.utils"
 import { getSignInErrorMessageKey } from "@/features/auth/components/sign-in/sign-in-form.utils"
 import { SignInReactivateDialog } from "@/features/auth/components/sign-in/sign-in-reactivate-dialog.client"
@@ -30,6 +28,7 @@ import { Input } from "@/components/ui/input"
 interface SignInFormProps {
   onSuccess: () => void
   onSwitchToSignUp: () => void
+  onForgotPassword: () => void
 }
 
 const texts = {
@@ -52,7 +51,7 @@ const texts = {
   showPassword: "Show password",
 }
 
-export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
+export function SignInForm({ onSuccess, onSwitchToSignUp, onForgotPassword }: SignInFormProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { refetch: refetchSession } = authClient.useSession()
@@ -213,9 +212,13 @@ export function SignInForm({ onSuccess, onSwitchToSignUp }: SignInFormProps) {
         <Field data-invalid={Boolean(form.formState.errors.password)} className="ml-0.5">
           <div className="flex items-center">
             <FieldLabel htmlFor="password">{texts.password}</FieldLabel>
-            <Link href={WebRoutes.resetPassword.path} className="ml-auto text-xs underline-offset-2 hover:underline">
+            <button
+              type="button"
+              onClick={onForgotPassword}
+              className="ml-auto text-xs underline-offset-2 hover:underline"
+            >
               {texts.forgotPassword}
-            </Link>
+            </button>
           </div>
           <div className="relative">
             <Input
