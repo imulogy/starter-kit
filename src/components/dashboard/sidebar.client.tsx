@@ -76,9 +76,10 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-        <SearchForm />
       </SidebarHeader>
       <SidebarContent>
+        <SearchForm />
+
         <SidebarGroup>
           <SidebarMenu>
             {data.navMain.map((item) => (

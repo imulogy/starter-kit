@@ -1,6 +1,5 @@
 import { betterAuth, User } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
-import { APIError, createAuthMiddleware } from "better-auth/api"
 import { nextCookies } from "better-auth/next-js"
 
 import { MIN_PASSWORD_LENGTH } from "@/lib/auth/auth.schema"
@@ -53,28 +52,6 @@ export const auth = betterAuth({
       })
     },
   },
-  hooks: {
-    before: createAuthMiddleware(async (ctx) => {
-      const body = ctx.body as { email?: string } | undefined
-      const email = typeof body?.email === "string" ? body.email : undefined
-
-      if (!email) return
-
-      const user = await prisma.user.findUnique({
-        where: { email },
-        select: { deactivatedAt: true },
-      })
-
-      if (!user?.deactivatedAt) return
-
-      if (ctx.path === "/sign-in/email") {
-        throw new APIError("FORBIDDEN", {
-          message: "Account is deactivated",
-          code: "ACCOUNT_DEACTIVATED",
-        })
-      }
-    }),
-  },
   databaseHooks: {
     user: {
       create: {
@@ -87,6 +64,16 @@ export const auth = betterAuth({
           } catch (err) {
             console.error("Welcome email failed:", err)
           }
+        },
+      },
+    },
+    session: {
+      create: {
+        after: async (session) => {
+          await prisma.user.update({
+            where: { id: session.userId },
+            data: { deactivatedAt: null },
+          })
         },
       },
     },

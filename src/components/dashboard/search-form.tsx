@@ -9,7 +9,7 @@ export function SearchForm({ ...props }: React.ComponentProps<"form">) {
     <DashboardCommandMenu
       renderTrigger={(open) => (
         <form {...props}>
-          <SidebarGroup className="py-0">
+          <SidebarGroup className="pt-4">
             <SidebarGroupContent className="relative">
               <Label htmlFor="search" className="sr-only">
                 Search

@@ -3,6 +3,7 @@ export type SettingsSectionId = "account" | "notifications" | "appearance" | "le
 export type SettingsDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
+  defaultSection?: SettingsSectionId
 }
 
 export type SettingsMobileView = "list" | "section"
