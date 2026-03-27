@@ -131,3 +131,13 @@
 .lucide {
   stroke-width: 1.5px;
 }
+
+@media (max-width: 767px) {
+  [data-mobile="true"][data-sidebar="sidebar"][data-slot="sidebar"] {
+    top: 0;
+    bottom: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}

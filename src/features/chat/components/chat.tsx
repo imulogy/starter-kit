@@ -2,17 +2,16 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 import type { UIMessage } from "ai"
-import { Route } from "next"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { ChatSession } from "@/features/chat/components/chat-session/chat-session"
 import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
+import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
 import { useFetchChatDetail } from "@/features/chat/hooks/use-fetch-chat-detail"
 import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
 import type { ChatProps } from "@/features/chat/types/chat.types"
-import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
 import { Spinner } from "@/components/ui/spinner"
 
 export function Chat({ initialChatId = null }: ChatProps) {
@@ -27,6 +26,7 @@ export function Chat({ initialChatId = null }: ChatProps) {
   const [activeChatId, setActiveChatId] = useState<string | null>(initialChatId)
   const [sessionClientId, setSessionClientId] = useState("")
   const bootstrapModeRef = useRef<"guest" | "authenticated" | null>(null)
+  const hasRefetchedChatsForSessionRef = useRef(false)
   const chatDetailQuery = useFetchChatDetail(activeChatId, isAuthenticated)
 
   const hydratedFromServer = Boolean(activeChatId) && sessionClientId === activeChatId
@@ -81,6 +81,36 @@ export function Chat({ initialChatId = null }: ChatProps) {
     router,
   ])
 
+  useEffect(() => {
+    if (!routingReady || isSessionPending) {
+      return
+    }
+
+    if (initialChatId && activeChatId !== initialChatId) {
+      setActiveChatId(initialChatId)
+      setSessionClientId(initialChatId)
+    }
+  }, [activeChatId, initialChatId, isSessionPending, routingReady])
+
+  useEffect(() => {
+    const handleNewChat = () => {
+      setActiveChatId(null)
+      setSessionClientId(crypto.randomUUID())
+    }
+
+    window.addEventListener(NEW_CHAT_EVENT_NAME, handleNewChat)
+    return () => {
+      window.removeEventListener(NEW_CHAT_EVENT_NAME, handleNewChat)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!sessionClientId) {
+      return
+    }
+    hasRefetchedChatsForSessionRef.current = false
+  }, [sessionClientId])
+
   if (chatsQuery.isError) {
     return (
       <div className="flex h-full min-h-[50vh] items-center justify-center p-6 text-sm text-destructive">
@@ -101,7 +131,7 @@ export function Chat({ initialChatId = null }: ChatProps) {
     isAuthenticated && Boolean(activeChatId) && hydratedFromServer && chatDetailQuery.isPending
 
   return (
-    <div className="flex h-[calc(100dvh-57px)] min-h-0">
+    <div className="flex h-[calc(100dvh-57px-4.5rem)] min-h-0 md:h-[calc(100dvh-57px)]">
       <main className="mx-auto flex min-h-0 max-w-3xl flex-1 flex-col">
         {waitingForChatDetail ? (
           <div className="flex min-h-0 flex-1 items-center justify-center">
@@ -116,13 +146,11 @@ export function Chat({ initialChatId = null }: ChatProps) {
             initialMessages={initialMessages}
             onChatCreated={(id) => {
               setActiveChatId(id)
-              setSessionClientId(id)
-              router.replace(getChatRoute(id) as Route)
             }}
             onConversationUpdated={() => {
-              void queryClient.invalidateQueries({ queryKey: chatQueryKeys.chats() })
-              if (activeChatId) {
-                void queryClient.invalidateQueries({ queryKey: chatQueryKeys.chat(activeChatId) })
+              if (!hasRefetchedChatsForSessionRef.current) {
+                hasRefetchedChatsForSessionRef.current = true
+                void queryClient.invalidateQueries({ queryKey: chatQueryKeys.chats() })
               }
             }}
           />

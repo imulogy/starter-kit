@@ -1,11 +1,12 @@
 "use client"
 
+import { User } from "better-auth"
 import { LogOut, Settings } from "lucide-react"
 import { useState, useTransition } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { SettingsDialog } from "@/features/settings/components/settings-dialog/settings-dialog"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -17,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 type UserButtonProps = {
-  email: string
+  user: User
 }
 
 function getInitial(email: string): string {
@@ -26,7 +27,7 @@ function getInitial(email: string): string {
   return trimmed[0]?.toUpperCase() ?? "U"
 }
 
-export function UserButton({ email }: UserButtonProps) {
+export function UserButton({ user }: UserButtonProps) {
   const [isPending, startTransition] = useTransition()
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
@@ -42,12 +43,13 @@ export function UserButton({ email }: UserButtonProps) {
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="ghost" size="icon" aria-label="Open account menu">
             <Avatar>
-              <AvatarFallback>{getInitial(email)}</AvatarFallback>
+              <AvatarImage src={user.image ?? undefined} />
+              <AvatarFallback>{getInitial(user.email)}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
+          <DropdownMenuLabel className="truncate">{user.email}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setIsSettingsOpen(true)}>
             <Settings className="mr-2 h-4 w-4" />

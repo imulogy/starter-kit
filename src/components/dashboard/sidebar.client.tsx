@@ -8,7 +8,7 @@ import * as React from "react"
 
 import { WebRoutes } from "@/lib/web.routes"
 import { ChatDashboardSidebar } from "@/features/chat/components/chat-dashboard-sidebar/chat-dashboard-sidebar.client"
-import { Logo } from "@/components/logo"
+import { SidebarLogo } from "@/components/sidebar-logo"
 import {
   Sidebar as SidebarComponent,
   SidebarContent,
@@ -19,6 +19,8 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+
+import { SearchForm } from "./search-form"
 
 const data = {
   navMain: [
@@ -47,14 +49,17 @@ export function Sidebar({ ...props }: React.ComponentProps<typeof SidebarCompone
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
-              <Logo />
+              <SidebarLogo />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup className="space-y-1">
-          <SidebarMenu>
+          <div className="hidden md:block">
+            <SearchForm />
+          </div>
+          <SidebarMenu className="pt-2">
             {data.navMain.map((item) => (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton asChild isActive={isNavItemActive(item.url) ? true : undefined}>

@@ -25,7 +25,7 @@ import {
   PromptInputTextarea,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input"
-import { Logo } from "@/components/logo"
+import { LogoIcon } from "@/components/ui/icons/logo"
 
 export function ChatSession({
   sessionClientId,
@@ -112,12 +112,12 @@ export function ChatSession({
   }
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <Conversation className="min-h-0 flex-1">
-        <ConversationContent className="flex min-h-full flex-col">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <Conversation className="min-h-0 flex-1 overflow-hidden">
+        <ConversationContent className="flex min-h-0 flex-col">
           {messages.length === 0 ? (
             <ConversationEmptyState className="min-h-0 flex-1 gap-2">
-              <Logo showTitle={false} />
+              <LogoIcon />
               <div className="space-y-2">
                 <h3 className="text-sm font-medium">How can I help you?</h3>
                 <p className="max-w-md text-sm text-muted-foreground">
@@ -172,7 +172,7 @@ export function ChatSession({
         <ConversationScrollButton />
       </Conversation>
 
-      <div className={cn("shrink-0 bg-background px-4 pb-4", messages.length === 0 ? "pt-2" : "pt-3")}>
+      <div className={cn("shrink-0 bg-background px-4 pt-3 pb-1 md:pb-4", messages.length === 0 ? "pt-2" : undefined)}>
         {messages.length === 0 ? (
           <ChatExamplePrompts
             disabled={isGenerating || createChatMutation.isPending}

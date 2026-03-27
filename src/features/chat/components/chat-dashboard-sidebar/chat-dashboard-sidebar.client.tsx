@@ -8,6 +8,7 @@ import { useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { WebRoutes } from "@/lib/web.routes"
+import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
 import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
 import { useMutateDeleteChat } from "@/features/chat/hooks/use-mutate-delete-chat"
 import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
@@ -54,6 +55,13 @@ export function ChatDashboardSidebar() {
     }
   }
 
+  const handleStartNewChat = () => {
+    window.dispatchEvent(new CustomEvent(NEW_CHAT_EVENT_NAME))
+    if (pathname !== WebRoutes.askAi.path) {
+      router.push(WebRoutes.askAi.path as Route)
+    }
+  }
+
   return (
     <>
       <Collapsible defaultOpen={isAskAiRoute} className="group/collapsible">
@@ -73,10 +81,10 @@ export function ChatDashboardSidebar() {
             <SidebarMenu className="max-h-64 overflow-y-auto">
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname === WebRoutes.askAi.path ? true : undefined}>
-                  <Link href={WebRoutes.askAi.path}>
+                  <button type="button" className="flex w-full items-center gap-2" onClick={handleStartNewChat}>
                     <span>New Chat</span>
                     <PlusIcon className="ml-auto size-4" />
-                  </Link>
+                  </button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               {chats.map((chat) => {
