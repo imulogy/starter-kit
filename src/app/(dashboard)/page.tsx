@@ -34,9 +34,9 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 py-10">
+    <div className="flex h-full w-full items-center justify-center">
       <SeoPageJsonLd name={title} description={description} url={canonical} />
-      <h1>{SiteConfig.name}</h1>
+      <h1 className="text-2xl font-bold">{SiteConfig.name}</h1>
     </div>
   )
 }
