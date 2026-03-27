@@ -9,7 +9,7 @@ export function SearchForm() {
       renderTrigger={(open) => (
         <Button
           variant="outline"
-          className="text-chat-surface-foreground placeholder:text-chat-muted w-full justify-between border-none bg-transparent text-xs outline-none"
+          className="text-chat-surface-foreground placeholder:text-chat-muted w-full justify-between border bg-muted text-xs outline-none dark:bg-transparent"
           onClick={open}
         >
           <div className="flex items-center gap-2">

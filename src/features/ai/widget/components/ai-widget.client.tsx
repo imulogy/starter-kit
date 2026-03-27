@@ -55,8 +55,12 @@ export function AiWidget({ defaultOpen = false }: AiWidgetProps) {
     }
 
     if (isGuestResolved) {
-      setActiveChatId(null)
-      setSessionClientId(crypto.randomUUID())
+      if (activeChatId !== null) {
+        setActiveChatId(null)
+      }
+      if (!sessionClientId) {
+        setSessionClientId(crypto.randomUUID())
+      }
       return
     }
 
@@ -65,7 +69,7 @@ export function AiWidget({ defaultOpen = false }: AiWidgetProps) {
     }
 
     setSessionClientId(crypto.randomUUID())
-  }, [chatsQuery.isSuccess, isGuestResolved, isSessionPending, sessionClientId])
+  }, [activeChatId, chatsQuery.isSuccess, isGuestResolved, isSessionPending, sessionClientId])
 
   const handleNewChat = () => {
     setActiveChatId(null)
