@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import type { UIMessage } from "ai"
 import { useCallback, useEffect, useRef, useState } from "react"
 
+import { authClient } from "@/lib/auth/auth-client"
 import { ChatSession } from "@/features/chat/components/chat-session/chat-session"
 import { ChatSidebar } from "@/features/chat/components/chat-sidebar/chat-sidebar"
 import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
@@ -23,16 +24,19 @@ import {
 import { Spinner } from "@/components/ui/spinner"
 
 export function Chat() {
+  const { data: session, isPending: isSessionPending } = authClient.useSession()
+  const isAuthenticated = Boolean(session?.user)
+  const isGuestResolved = !isSessionPending && !isAuthenticated
   const queryClient = useQueryClient()
-  const chatsQuery = useFetchChats()
+  const chatsQuery = useFetchChats(isAuthenticated && !isSessionPending)
   const deleteChatMutation = useMutateDeleteChat()
 
   const [routingReady, setRoutingReady] = useState(false)
   const [activeChatId, setActiveChatId] = useState<string | null>(null)
   const [sessionClientId, setSessionClientId] = useState("")
   const [pendingDeleteChatId, setPendingDeleteChatId] = useState<string | null>(null)
-  const bootstrapDoneRef = useRef(false)
-  const chatDetailQuery = useFetchChatDetail(activeChatId)
+  const bootstrapModeRef = useRef<"guest" | "authenticated" | null>(null)
+  const chatDetailQuery = useFetchChatDetail(activeChatId, isAuthenticated)
 
   const chats = chatsQuery.data ?? []
   const hydratedFromServer = Boolean(activeChatId) && sessionClientId === activeChatId
@@ -49,10 +53,31 @@ export function Chat() {
   }, [])
 
   useEffect(() => {
-    if (chatsQuery.isPending || chatsQuery.isError || !chatsQuery.isSuccess || bootstrapDoneRef.current) {
+    if (isSessionPending) {
       return
     }
-    bootstrapDoneRef.current = true
+
+    if (isGuestResolved) {
+      if (bootstrapModeRef.current === "guest") {
+        return
+      }
+      bootstrapModeRef.current = "guest"
+      setActiveChatId(null)
+      setSessionClientId(crypto.randomUUID())
+      setRoutingReady(true)
+      return
+    }
+
+    if (
+      chatsQuery.isPending ||
+      chatsQuery.isError ||
+      !chatsQuery.isSuccess ||
+      bootstrapModeRef.current === "authenticated"
+    ) {
+      return
+    }
+
+    bootstrapModeRef.current = "authenticated"
     const firstChat = (chatsQuery.data ?? [])[0]
     queueMicrotask(() => {
       if (firstChat) {
@@ -64,7 +89,14 @@ export function Chat() {
       }
       setRoutingReady(true)
     })
-  }, [chatsQuery.data, chatsQuery.isError, chatsQuery.isPending, chatsQuery.isSuccess])
+  }, [
+    chatsQuery.data,
+    chatsQuery.isError,
+    chatsQuery.isPending,
+    chatsQuery.isSuccess,
+    isGuestResolved,
+    isSessionPending,
+  ])
 
   const executeDeleteChat = useCallback(
     async (id: string) => {
@@ -89,7 +121,7 @@ export function Chat() {
     )
   }
 
-  if (!routingReady || !sessionClientId) {
+  if (isSessionPending || !routingReady || !sessionClientId) {
     return (
       <div className="flex h-full min-h-[50vh] items-center justify-center">
         <Spinner className="size-8" />
@@ -97,7 +129,8 @@ export function Chat() {
     )
   }
 
-  const waitingForChatDetail = Boolean(activeChatId) && hydratedFromServer && chatDetailQuery.isPending
+  const waitingForChatDetail =
+    isAuthenticated && Boolean(activeChatId) && hydratedFromServer && chatDetailQuery.isPending
 
   return (
     <div className="flex h-[calc(100dvh-57px)] min-h-0 border-t">
@@ -119,6 +152,7 @@ export function Chat() {
           <ChatSession
             key={sessionClientId}
             sessionClientId={sessionClientId}
+            isAuthenticated={isAuthenticated}
             initialDbChatId={activeChatId}
             initialMessages={initialMessages}
             onChatCreated={(id) => {

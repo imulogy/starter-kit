@@ -10,16 +10,19 @@ import { Message, MessageContent, MessageResponse } from "@/components/ai-elemen
 import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, PromptInputTools } from "@/components/ai-elements/prompt-input"
 import { AssistantThinkingIndicator } from "@/features/chat/components/chat-session/assistant-thinking-indicator"
 import { ChatExamplePrompts } from "@/features/chat/components/chat-session/chat-example-prompts"
+import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
 import { useMutateCreateChat } from "@/features/chat/hooks/use-mutate-create-chat"
+import { useChatAuthRequiredStore } from "@/features/chat/store/chat-auth-required.store"
 import type { ChatSessionProps } from "@/features/chat/types/chat-session.types"
 import { createStableChatTransport } from "@/features/chat/utils/stable-chat-transport"
 import { cn } from "@/lib/utils"
 import { useChat } from "@ai-sdk/react"
 import { Sparkles } from "lucide-react"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 export function ChatSession({
   sessionClientId,
+  isAuthenticated = true,
   initialMessages,
   initialDbChatId,
   onChatCreated,
@@ -27,6 +30,10 @@ export function ChatSession({
 }: ChatSessionProps) {
   const [transportApi] = useState(() => createStableChatTransport())
   const createChatMutation = useMutateCreateChat()
+  const { openAuthModal } = useAuthRequiredModal()
+  const pendingPrompt = useChatAuthRequiredStore((state) => state.pendingPrompt)
+  const setPendingPrompt = useChatAuthRequiredStore((state) => state.setPendingPrompt)
+  const clearPendingPrompt = useChatAuthRequiredStore((state) => state.clearPendingPrompt)
 
   useEffect(() => {
     transportApi.setChatId(initialDbChatId)
@@ -44,20 +51,50 @@ export function ChatSession({
   const isGenerating = status === "submitted" || status === "streaming"
   const lastIndex = messages.length - 1
 
-  const handleSubmit = async ({ text }: { text: string }) => {
-    if (!text.trim() || isGenerating) {
+  const sendAuthorizedMessage = useCallback(
+    async (text: string) => {
+      const normalizedText = text.trim()
+      if (!normalizedText || isGenerating) {
+        return false
+      }
+      if (!transportApi.getChatId()) {
+        try {
+          const created = await createChatMutation.mutateAsync()
+          transportApi.setChatId(created.id)
+          onChatCreated(created.id)
+        } catch {
+          return false
+        }
+      }
+      void sendMessage({ text: normalizedText })
+      return true
+    },
+    [createChatMutation, isGenerating, onChatCreated, sendMessage, transportApi]
+  )
+
+  useEffect(() => {
+    if (!isAuthenticated || !pendingPrompt || isGenerating || createChatMutation.isPending) {
       return
     }
-    if (!transportApi.getChatId()) {
-      try {
-        const created = await createChatMutation.mutateAsync()
-        transportApi.setChatId(created.id)
-        onChatCreated(created.id)
-      } catch {
-        return
+    void (async () => {
+      const wasSent = await sendAuthorizedMessage(pendingPrompt)
+      if (wasSent) {
+        clearPendingPrompt()
       }
+    })()
+  }, [clearPendingPrompt, createChatMutation.isPending, isAuthenticated, isGenerating, pendingPrompt, sendAuthorizedMessage])
+
+  const handleSubmit = async ({ text }: { text: string }) => {
+    const normalizedText = text.trim()
+    if (!normalizedText || isGenerating) {
+      return
     }
-    void sendMessage({ text })
+    if (!isAuthenticated) {
+      setPendingPrompt(normalizedText)
+      openAuthModal()
+      return
+    }
+    await sendAuthorizedMessage(normalizedText)
   }
 
   return (

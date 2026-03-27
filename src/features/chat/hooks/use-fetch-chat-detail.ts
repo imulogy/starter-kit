@@ -5,10 +5,10 @@ import { useQuery } from "@tanstack/react-query"
 import { getChatApi } from "@/features/chat/api/chats.api"
 import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
 
-export function useFetchChatDetail(chatId: string | null) {
+export function useFetchChatDetail(chatId: string | null, enabled = true) {
   return useQuery({
     queryKey: chatQueryKeys.chat(chatId ?? ""),
     queryFn: () => getChatApi(chatId!),
-    enabled: Boolean(chatId),
+    enabled: enabled && Boolean(chatId),
   })
 }

@@ -14,8 +14,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <DashboardHeader />
           <MobileBottomNav />
           <SettingsDialogGlobalBridge />
+          {children}
         </AuthRequiredModalProvider>
-        {children}
       </SidebarInset>
     </SidebarProvider>
   )

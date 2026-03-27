@@ -15,9 +15,9 @@ export const AuthRequiredModalContext = createContext<AuthRequiredModalContextVa
 export function useAuthRequiredModal() {
   const context = useContext(AuthRequiredModalContext)
 
-  if (!context) {
-    throw new Error("useAuthRequiredModal must be used within a AuthRequiredModalProvider")
-  }
-
-  return context
+  return (
+    context ?? {
+      openAuthModal: () => {},
+    }
+  )
 }
