@@ -1,16 +1,22 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { usePathname } from "next/navigation"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { WebRoutes } from "@/lib/web.routes"
 import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
-import { UserButton } from "@/features/auth/components/user-button"
+import { SearchForm } from "@/components/dashboard/search-form"
 import { Logo } from "@/components/logo"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
+
+const UserButton = dynamic(() => import("@/features/auth/components/user-button").then((module) => module.UserButton), {
+  ssr: false,
+  loading: () => null,
+})
 
 export function DashboardHeader() {
   const pathname = usePathname()
@@ -39,7 +45,8 @@ export function DashboardHeader() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
-      <div className="ml-auto hidden pr-4 md:block">
+      <div className="ml-auto hidden items-center gap-3 pr-4 md:flex">
+        <SearchForm className="w-52" />
         {session?.user?.email ? (
           <UserButton email={session.user.email} />
         ) : (

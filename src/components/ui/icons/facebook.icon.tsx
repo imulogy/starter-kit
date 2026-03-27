@@ -1,8 +1,6 @@
-import { IconProps } from "@/types"
-
 import { cn } from "@/lib/utils"
 
-export function FacebookIcon({ className, ...props }: IconProps) {
+export function FacebookIcon({ className, ...props }: React.ComponentProps<"svg">) {
   return (
     <svg
       viewBox="0 0 24 24"

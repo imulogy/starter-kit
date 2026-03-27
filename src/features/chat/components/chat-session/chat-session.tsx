@@ -1,5 +1,16 @@
 "use client"
 
+import { useChat } from "@ai-sdk/react"
+import { useCallback, useEffect, useState } from "react"
+
+import { cn } from "@/lib/utils"
+import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
+import { AssistantThinkingIndicator } from "@/features/chat/components/chat-session/assistant-thinking-indicator"
+import { ChatExamplePrompts } from "@/features/chat/components/chat-session/chat-example-prompts"
+import { useMutateCreateChat } from "@/features/chat/hooks/use-mutate-create-chat"
+import { useChatAuthRequiredStore } from "@/features/chat/store/chat-auth-required.store"
+import type { ChatSessionProps } from "@/features/chat/types/chat-session.types"
+import { createStableChatTransport } from "@/features/chat/utils/stable-chat-transport"
 import {
   Conversation,
   ConversationContent,
@@ -7,18 +18,14 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message"
-import { PromptInput, PromptInputFooter, PromptInputSubmit, PromptInputTextarea, PromptInputTools } from "@/components/ai-elements/prompt-input"
-import { AssistantThinkingIndicator } from "@/features/chat/components/chat-session/assistant-thinking-indicator"
-import { ChatExamplePrompts } from "@/features/chat/components/chat-session/chat-example-prompts"
-import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
-import { useMutateCreateChat } from "@/features/chat/hooks/use-mutate-create-chat"
-import { useChatAuthRequiredStore } from "@/features/chat/store/chat-auth-required.store"
-import type { ChatSessionProps } from "@/features/chat/types/chat-session.types"
-import { createStableChatTransport } from "@/features/chat/utils/stable-chat-transport"
-import { cn } from "@/lib/utils"
-import { useChat } from "@ai-sdk/react"
-import { Sparkles } from "lucide-react"
-import { useCallback, useEffect, useState } from "react"
+import {
+  PromptInput,
+  PromptInputFooter,
+  PromptInputSubmit,
+  PromptInputTextarea,
+  PromptInputTools,
+} from "@/components/ai-elements/prompt-input"
+import { Logo } from "@/components/logo"
 
 export function ChatSession({
   sessionClientId,
@@ -82,7 +89,14 @@ export function ChatSession({
         clearPendingPrompt()
       }
     })()
-  }, [clearPendingPrompt, createChatMutation.isPending, isAuthenticated, isGenerating, pendingPrompt, sendAuthorizedMessage])
+  }, [
+    clearPendingPrompt,
+    createChatMutation.isPending,
+    isAuthenticated,
+    isGenerating,
+    pendingPrompt,
+    sendAuthorizedMessage,
+  ])
 
   const handleSubmit = async ({ text }: { text: string }) => {
     const normalizedText = text.trim()
@@ -102,13 +116,13 @@ export function ChatSession({
       <Conversation className="min-h-0 flex-1">
         <ConversationContent className="flex min-h-full flex-col">
           {messages.length === 0 ? (
-            <ConversationEmptyState className="min-h-0 flex-1">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-foreground text-background">
-                <Sparkles className="size-4" strokeWidth={1.75} />
-              </div>
+            <ConversationEmptyState className="min-h-0 flex-1 gap-2">
+              <Logo showTitle={false} />
               <div className="space-y-2">
                 <h3 className="text-sm font-medium">How can I help you?</h3>
-                <p className="max-w-md text-sm text-muted-foreground">Chat with AI, keep history, and resume any previous conversation.</p>
+                <p className="max-w-md text-sm text-muted-foreground">
+                  Chat with AI, keep history, and resume any previous conversation.
+                </p>
               </div>
             </ConversationEmptyState>
           ) : null}
@@ -119,14 +133,21 @@ export function ChatSession({
               from={message.role}
               className={cn(message.role === "user" && "w-fit max-w-[min(100%,32rem)] justify-end")}
             >
-              <MessageContent className={cn(message.role === "user" ? "min-w-0 flex-col gap-3" : "flex w-full min-w-0 flex-col gap-3")}>
+              <MessageContent
+                className={cn(
+                  message.role === "user" ? "min-w-0 flex-col gap-3" : "flex w-full min-w-0 flex-col gap-3"
+                )}
+              >
                 {message.parts.map((part, partIndex) => {
                   if (part.type !== "text") {
                     return null
                   }
                   const isUser = message.role === "user"
                   return (
-                    <div key={partIndex} className={cn("block min-w-0 shrink-0", isUser ? "max-w-full" : "w-full min-w-0")}>
+                    <div
+                      key={partIndex}
+                      className={cn("block min-w-0 shrink-0", isUser ? "max-w-full" : "w-full min-w-0")}
+                    >
                       <MessageResponse
                         className={cn("block min-w-0", isUser ? "max-w-full" : "w-full")}
                         isAnimating={status === "streaming" && index === lastIndex && message.role === "assistant"}

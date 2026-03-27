@@ -20,7 +20,11 @@ export function SignInPageDialog() {
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
-        <SignInForm onSuccess={handleSuccess} onSwitchToSignUp={() => router.push(WebRoutes.signUp.path)} />
+        <SignInForm
+          onSuccess={handleSuccess}
+          onSwitchToSignUp={() => router.push(WebRoutes.signUp.path)}
+          onForgotPassword={() => router.push(WebRoutes.resetPassword.path)}
+        />
       </DialogContent>
     </Dialog>
   )

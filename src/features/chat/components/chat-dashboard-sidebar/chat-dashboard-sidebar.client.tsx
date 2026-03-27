@@ -1,0 +1,189 @@
+"use client"
+
+import { ChevronRight, EllipsisIcon, LinkIcon, PlusIcon, SparklesIcon, Trash2Icon } from "lucide-react"
+import { Route } from "next"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react"
+
+import { authClient } from "@/lib/auth/auth-client"
+import { WebRoutes } from "@/lib/web.routes"
+import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
+import { useMutateDeleteChat } from "@/features/chat/hooks/use-mutate-delete-chat"
+import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { SidebarGroupContent, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+
+export function ChatDashboardSidebar() {
+  const pathname = usePathname()
+  const router = useRouter()
+  const [pendingDeleteChatId, setPendingDeleteChatId] = useState<string | null>(null)
+  const { data: session, isPending: isSessionPending } = authClient.useSession()
+  const isAuthenticated = Boolean(session?.user)
+  const chatsQuery = useFetchChats(isAuthenticated && !isSessionPending)
+  const deleteChatMutation = useMutateDeleteChat()
+  const chats = chatsQuery.data ?? []
+
+  const isAskAiRoute = pathname === WebRoutes.askAi.path || pathname.startsWith(`${WebRoutes.askAi.path}/`)
+
+  const handleCopyLink = async (chatPath: string) => {
+    const fullUrl = `${window.location.origin}${chatPath}`
+    try {
+      await navigator.clipboard.writeText(fullUrl)
+    } catch {
+      return
+    }
+  }
+
+  return (
+    <>
+      <Collapsible defaultOpen={isAskAiRoute} className="group/collapsible">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton>
+                <SparklesIcon />
+                <span>Ask AI</span>
+                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <CollapsibleContent>
+          <SidebarGroupContent className="pt-1 pl-1">
+            <SidebarMenu className="max-h-64 overflow-y-auto">
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname === WebRoutes.askAi.path ? true : undefined}>
+                  <Link href={WebRoutes.askAi.path}>
+                    <span>New Chat</span>
+                    <PlusIcon className="ml-auto size-4" />
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              {chats.map((chat) => {
+                const chatPath = getChatRoute(chat.id)
+                const isActive = pathname === chatPath
+                const label = chat.title?.trim() || "Untitled chat"
+                return (
+                  <SidebarMenuItem key={chat.id}>
+                    <SidebarMenuButton asChild isActive={isActive ? true : undefined} className="pr-8">
+                      <Link href={chatPath as Route} title={label}>
+                        <span className="truncate">{label}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                    <div className="absolute top-1.5 right-1">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="size-5 cursor-pointer group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 md:opacity-0"
+                            aria-label="Chat actions"
+                            disabled={deleteChatMutation.isPending}
+                            onClick={(event) => {
+                              event.preventDefault()
+                            }}
+                          >
+                            <EllipsisIcon className="size-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44 min-w-44">
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem
+                              onSelect={() => {
+                                void handleCopyLink(chatPath)
+                              }}
+                            >
+                              <LinkIcon />
+                              Copy link
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuGroup>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onSelect={() => {
+                                setPendingDeleteChatId(chat.id)
+                              }}
+                            >
+                              <Trash2Icon />
+                              Delete chat
+                            </DropdownMenuItem>
+                          </DropdownMenuGroup>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </SidebarMenuItem>
+                )
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </Collapsible>
+      <AlertDialog
+        open={Boolean(pendingDeleteChatId)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteChatId(null)
+          }
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this chat?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The chat and all of its messages will be permanently deleted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteChatMutation.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={deleteChatMutation.isPending}
+              onClick={() => {
+                const chatId = pendingDeleteChatId
+                if (!chatId) {
+                  return
+                }
+                void (async () => {
+                  try {
+                    await deleteChatMutation.mutateAsync(chatId)
+                    const deletedPath = getChatRoute(chatId)
+                    if (pathname === deletedPath) {
+                      const nextChat = chats.find((chat) => chat.id !== chatId)
+                      router.replace((nextChat ? getChatRoute(nextChat.id) : WebRoutes.askAi.path) as Route)
+                    }
+                    setPendingDeleteChatId(null)
+                  } catch {
+                    setPendingDeleteChatId(null)
+                  }
+                })()
+              }}
+            >
+              {deleteChatMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  )
+}

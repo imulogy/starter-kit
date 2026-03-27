@@ -2,10 +2,9 @@ import { ParticleBackground } from "@/features/auth/components/particle-backgrou
 
 type AuthLayoutProps = {
   children: React.ReactNode
-  params: Promise<{ locale: string }>
 }
 
-export default async function AuthLayout({ children }: AuthLayoutProps) {
+export default function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="relative min-h-dvh overflow-y-auto md:h-dvh md:pb-0">
       <div

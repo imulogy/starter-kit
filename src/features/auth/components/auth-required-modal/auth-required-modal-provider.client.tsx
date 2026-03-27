@@ -30,14 +30,16 @@ export function AuthRequiredModalProvider({ children }: AuthRequiredModalProvide
   return (
     <AuthRequiredModalContext.Provider value={{ openAuthModal }}>
       {children}
-      <AuthRequiredModalDialogLazy
-        open={open}
-        onOpenChange={setOpen}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
-        onSignInSuccess={handleSignInSuccess}
-        onSignUpSuccess={handleSignUpSuccess}
-      />
+      {open ? (
+        <AuthRequiredModalDialogLazy
+          open={open}
+          onOpenChange={setOpen}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onSignInSuccess={handleSignInSuccess}
+          onSignUpSuccess={handleSignUpSuccess}
+        />
+      ) : null}
     </AuthRequiredModalContext.Provider>
   )
 }

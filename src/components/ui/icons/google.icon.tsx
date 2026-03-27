@@ -1,8 +1,6 @@
-import { IconProps } from "@/types"
-
 import { cn } from "@/lib/utils"
 
-export function GoogleIcon({ className, ...props }: IconProps) {
+export function GoogleIcon({ className, ...props }: React.ComponentProps<"svg">) {
   return (
     <svg
       viewBox="-3 0 262 262"

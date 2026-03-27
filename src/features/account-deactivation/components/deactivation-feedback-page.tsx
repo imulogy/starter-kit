@@ -1,5 +1,3 @@
-import { MessageSquareWarning } from "lucide-react"
-
 import { submitDeactivationFeedbackAction } from "@/features/account-deactivation/actions/submit-deactivation-feedback.action"
 import {
   deactivationFeedbackCategories,

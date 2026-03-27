@@ -1,9 +1,10 @@
 import "@/app/globals.css"
 
+import type { Metadata } from "next"
 import { Nunito_Sans } from "next/font/google"
 
 import { cn } from "@/lib/utils"
-import { CookieConsentBanner } from "@/components/cookies/cookie-consent-banner.client"
+import { CookieConsentBannerLazy } from "@/components/cookies/cookie-consent-banner-lazy.client"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { QueryClientProviderWrapper } from "@/providers/query-client.provider"
@@ -16,6 +17,14 @@ const fontSans = Nunito_Sans({
   fallback: ["system-ui", "arial"],
   preload: true,
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: "Starter Kit",
+    template: "%s | Starter Kit",
+  },
+  description: "Starter Kit dashboard and AI workspace.",
+}
 
 export default function RootLayout({
   children,
@@ -30,7 +39,7 @@ export default function RootLayout({
             <TooltipProvider>
               {children}
               <Toaster position="bottom-right" />
-              <CookieConsentBanner />
+              <CookieConsentBannerLazy />
             </TooltipProvider>
           </QueryClientProviderWrapper>
         </ThemeProvider>

@@ -1,3 +1,5 @@
+import { Suspense } from "react"
+
 import { AuthRequiredModalProvider } from "@/features/auth/components/auth-required-modal/auth-required-modal-provider.client"
 import { SettingsDialogGlobalBridge } from "@/features/settings/components/settings-dialog/settings-dialog-global-bridge.client"
 import { DashboardHeader } from "@/components/dashboard/header.client"
@@ -8,14 +10,18 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <Sidebar />
+      <Suspense fallback={<div />}>
+        <Sidebar />
+      </Suspense>
       <SidebarInset className="pb-24 md:pb-0">
-        <AuthRequiredModalProvider>
-          <DashboardHeader />
-          <MobileBottomNav />
-          <SettingsDialogGlobalBridge />
-          {children}
-        </AuthRequiredModalProvider>
+        <Suspense fallback={null}>
+          <AuthRequiredModalProvider>
+            <DashboardHeader />
+            <MobileBottomNav />
+            <SettingsDialogGlobalBridge />
+            {children}
+          </AuthRequiredModalProvider>
+        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   )

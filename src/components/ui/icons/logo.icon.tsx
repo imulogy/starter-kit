@@ -1,5 +1,3 @@
-import { IconProps } from "@/types"
-
 import { cn } from "@/lib/utils"
 
 export function LogoIcon({
@@ -7,7 +5,7 @@ export function LogoIcon({
   fill,
   strokeColor,
   ...props
-}: IconProps & { fill?: string; strokeColor?: string }) {
+}: React.ComponentProps<"svg"> & { fill?: string; strokeColor?: string }) {
   return (
     <svg
       id="uuid-f97c9fa6-b13b-4dbb-9251-9080020f2271"

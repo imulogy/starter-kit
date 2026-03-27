@@ -1,8 +1,6 @@
-import { IconProps } from "@/types"
-
 import { cn } from "@/lib/utils"
 
-export function EnterIcon({ className, ...props }: IconProps) {
+export function EnterIcon({ className, ...props }: React.ComponentProps<"svg">) {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" className={cn("size-4 shrink-0", className)} {...props}>
       <g id="uuid-ac1397bd-ee84-47a7-b2d3-c80cf82c7561">

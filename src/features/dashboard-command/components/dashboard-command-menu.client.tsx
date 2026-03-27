@@ -1,47 +1,43 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { SearchIcon } from "lucide-react"
-import { useTheme } from "next-themes"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
-import { dashboardCommandItems } from "@/features/dashboard-command/constants/dashboard-command-items.constants"
-import type { DashboardCommandActionId } from "@/features/dashboard-command/types/dashboard-command-item.types"
 import type { DashboardCommandMenuProps } from "@/features/dashboard-command/types/dashboard-command-menu.types"
-import { useSettingsDialogStore } from "@/features/settings/store/settings-dialog.store"
 import { Button } from "@/components/ui/button"
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command"
+
+const DashboardCommandDialogClient = dynamic(
+  () =>
+    import("@/features/dashboard-command/components/dashboard-command-dialog.client").then(
+      (module) => module.DashboardCommandDialogClient
+    ),
+  { ssr: false }
+)
 
 export function DashboardCommandMenu({ renderTrigger }: DashboardCommandMenuProps) {
   const [open, setOpen] = useState(false)
-  const { setTheme } = useTheme()
-  const router = useRouter()
-  const openSettingsDialog = useSettingsDialogStore((state) => state.openDialog)
 
-  const handleAction = (actionId?: DashboardCommandActionId) => {
-    if (!actionId) return
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (typeof event.key !== "string") {
+        return
+      }
 
-    if (actionId === "open-settings") {
-      openSettingsDialog("account")
+      const isShortcut = event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey)
+      if (!isShortcut) {
+        return
+      }
+
+      event.preventDefault()
+      setOpen((currentOpen) => !currentOpen)
     }
 
-    if (actionId === "open-profile") {
-      openSettingsDialog("account")
+    window.addEventListener("keydown", onKeyDown)
+    return () => {
+      window.removeEventListener("keydown", onKeyDown)
     }
-
-    if (actionId === "open-notifications") {
-      openSettingsDialog("notifications")
-    }
-  }
+  }, [])
 
   return (
     <>
@@ -54,56 +50,7 @@ export function DashboardCommandMenu({ renderTrigger }: DashboardCommandMenuProp
         </Button>
       )}
 
-      <CommandDialog open={open} onOpenChange={setOpen}>
-        <Command>
-          <CommandInput placeholder="Type a command or search..." />
-          <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
-            <CommandGroup heading="Navigation">
-              {dashboardCommandItems
-                .filter((item) => item.kind === "route" || item.kind === "action")
-                .map((item) => (
-                  <CommandItem
-                    key={item.label}
-                    onSelect={() => {
-                      if (item.kind === "route" && item.path) {
-                        router.push(item.path)
-                      }
-
-                      if (item.kind === "action") {
-                        handleAction(item.actionId)
-                      }
-
-                      setOpen(false)
-                    }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </CommandItem>
-                ))}
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Appearance">
-              {dashboardCommandItems
-                .filter((item) => item.kind === "theme")
-                .map((item) => (
-                  <CommandItem
-                    key={item.label}
-                    onSelect={() => {
-                      if (item.theme) {
-                        setTheme(item.theme)
-                      }
-                      setOpen(false)
-                    }}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </CommandItem>
-                ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </CommandDialog>
+      {open ? <DashboardCommandDialogClient open={open} onOpenChange={setOpen} /> : null}
     </>
   )
 }

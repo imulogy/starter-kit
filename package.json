@@ -17,6 +17,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start:prod": "bun run build && bun run start",
     "lint": "tsc --noEmit && eslint",
     "env:push:development": "node scripts/vercel-env-push.js .env.development development",
     "env:push:preview": "node scripts/vercel-env-push.js .env.development preview",

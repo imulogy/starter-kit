@@ -1,7 +1,9 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
+import { useShallow } from "zustand/react/shallow"
 
+import { useCookieConsentStore } from "@/components/cookies/cookie-consent.store"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -9,38 +11,21 @@ export const COOKIE_CONSENT_STORAGE_KEY = "cookie-consent"
 export const COOKIE_CONSENT_TOAST_ID = "cookie-consent-toast"
 
 export function CookieConsentBanner() {
-  const [mounted, setMounted] = useState(false)
-  const [consent, setConsent] = useState<"all" | "essential" | null>(null)
+  const { consent, hydrated, hydrate, acceptAll, acceptNecessaryOnly } = useCookieConsentStore(
+    useShallow((state) => ({
+      consent: state.consent,
+      hydrated: state.hydrated,
+      hydrate: state.hydrate,
+      acceptAll: state.acceptAll,
+      acceptNecessaryOnly: state.acceptNecessaryOnly,
+    }))
+  )
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    hydrate()
+  }, [hydrate])
 
-  useEffect(() => {
-    if (!mounted) {
-      return
-    }
-
-    const storedConsent = window.localStorage.getItem(COOKIE_CONSENT_STORAGE_KEY)
-
-    if (storedConsent === "all" || storedConsent === "essential") {
-      setConsent(storedConsent)
-    } else {
-      setConsent(null)
-    }
-  }, [mounted])
-
-  const acceptAll = () => {
-    window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, "all")
-    setConsent("all")
-  }
-
-  const acceptNecessaryOnly = () => {
-    window.localStorage.setItem(COOKIE_CONSENT_STORAGE_KEY, "essential")
-    setConsent("essential")
-  }
-
-  if (!mounted || consent !== null) {
+  if (!hydrated || consent !== null) {
     return null
   }
 
