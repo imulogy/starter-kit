@@ -4,7 +4,7 @@ import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 
 import { auth } from "@/lib/auth/auth"
-import { createChat, listChats } from "@/features/chat/repositories/chat.repository"
+import { createChat, listChats } from "@/features/ai/chat/repositories/chat.repository"
 
 async function getSessionUserId() {
   const session = await auth.api.getSession({ headers: await headers() })

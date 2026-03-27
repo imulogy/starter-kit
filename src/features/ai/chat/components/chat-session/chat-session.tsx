@@ -4,13 +4,13 @@ import { useChat } from "@ai-sdk/react"
 import { useCallback, useEffect, useState } from "react"
 
 import { cn } from "@/lib/utils"
+import { AssistantThinkingIndicator } from "@/features/ai/chat/components/chat-session/assistant-thinking-indicator"
+import { ChatExamplePrompts } from "@/features/ai/chat/components/chat-session/chat-example-prompts"
+import { useMutateCreateChat } from "@/features/ai/chat/hooks/use-mutate-create-chat"
+import { useChatAuthRequiredStore } from "@/features/ai/chat/store/chat-auth-required.store"
+import type { ChatSessionProps } from "@/features/ai/chat/types/chat-session.types"
+import { createStableChatTransport } from "@/features/ai/chat/utils/stable-chat-transport"
 import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
-import { AssistantThinkingIndicator } from "@/features/chat/components/chat-session/assistant-thinking-indicator"
-import { ChatExamplePrompts } from "@/features/chat/components/chat-session/chat-example-prompts"
-import { useMutateCreateChat } from "@/features/chat/hooks/use-mutate-create-chat"
-import { useChatAuthRequiredStore } from "@/features/chat/store/chat-auth-required.store"
-import type { ChatSessionProps } from "@/features/chat/types/chat-session.types"
-import { createStableChatTransport } from "@/features/chat/utils/stable-chat-transport"
 import {
   Conversation,
   ConversationContent,
@@ -32,6 +32,9 @@ export function ChatSession({
   isAuthenticated = true,
   initialMessages,
   initialDbChatId,
+  examplePrompts,
+  examplePromptsLayout = "default",
+  compactMode = false,
   onChatCreated,
   onConversationUpdated,
 }: ChatSessionProps) {
@@ -114,13 +117,17 @@ export function ChatSession({
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <Conversation className="min-h-0 flex-1 overflow-hidden">
-        <ConversationContent className="flex min-h-0 flex-col">
+        <ConversationContent
+          className={cn("flex min-h-0 flex-col", messages.length === 0 ? "h-full justify-center" : undefined)}
+        >
           {messages.length === 0 ? (
-            <ConversationEmptyState className="min-h-0 flex-1 gap-2">
+            <ConversationEmptyState
+              className={cn("min-h-0 flex-1 gap-2", compactMode && "w-full items-center justify-center text-center")}
+            >
               <LogoIcon />
-              <div className="space-y-2">
+              <div className={cn("space-y-2", compactMode && "mx-auto w-full max-w-sm")}>
                 <h3 className="text-sm font-medium">How can I help you?</h3>
-                <p className="max-w-md text-sm text-muted-foreground">
+                <p className={cn("max-w-md text-sm text-muted-foreground", compactMode && "mx-auto")}>
                   Chat with AI, keep history, and resume any previous conversation.
                 </p>
               </div>
@@ -176,6 +183,8 @@ export function ChatSession({
         {messages.length === 0 ? (
           <ChatExamplePrompts
             disabled={isGenerating || createChatMutation.isPending}
+            prompts={examplePrompts}
+            layout={examplePromptsLayout}
             onSelect={(text) => {
               void handleSubmit({ text })
             }}

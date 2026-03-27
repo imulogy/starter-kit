@@ -1,4 +1,4 @@
-import { Chat } from "@/features/chat/components/chat"
+import { Chat } from "@/features/ai/chat/components/chat"
 
 type Props = {
   params: Promise<{ chatId: string }>

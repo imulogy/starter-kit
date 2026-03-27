@@ -1,6 +1,6 @@
 import { create } from "zustand"
 
-import type { ChatAuthRequiredStore } from "@/features/chat/types/chat-auth-required.types"
+import type { ChatAuthRequiredStore } from "@/features/ai/chat/types/chat-auth-required.types"
 
 export const useChatAuthRequiredStore = create<ChatAuthRequiredStore>((set) => ({
   pendingPrompt: null,

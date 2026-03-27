@@ -2,14 +2,14 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 
-import { deleteChatApi } from "@/features/chat/api/chats.api"
-import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
+import { createChatApi } from "@/features/ai/chat/api/chats.api"
+import { chatQueryKeys } from "@/features/ai/chat/constants/chat-query-keys"
 
-export function useMutateDeleteChat() {
+export function useMutateCreateChat() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: deleteChatApi,
+    mutationFn: createChatApi,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: chatQueryKeys.chats() })
     },

@@ -3,6 +3,7 @@ import "@/app/globals.css"
 import type { Metadata } from "next"
 import { Nunito_Sans } from "next/font/google"
 
+import { SiteConfig } from "@/lib/site.config"
 import { cn } from "@/lib/utils"
 import { CookieConsentBannerLazy } from "@/components/cookies/cookie-consent-banner-lazy.client"
 import { Toaster } from "@/components/ui/sonner"
@@ -20,10 +21,10 @@ const fontSans = Nunito_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "Starter Kit",
-    template: "%s | Starter Kit",
+    default: SiteConfig.name,
+    template: "%s | " + SiteConfig.name,
   },
-  description: "Starter Kit dashboard and AI workspace.",
+  description: SiteConfig.description,
 }
 
 export default function RootLayout({

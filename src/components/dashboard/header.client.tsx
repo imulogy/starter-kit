@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { WebRoutes } from "@/lib/web.routes"
-import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
+import { NEW_CHAT_EVENT_NAME } from "@/features/ai/chat/constants/new-chat-event.constants"
 import { useAuthRequiredModal } from "@/features/auth/components/auth-required-modal/auth-required-modal-context"
 import { SidebarLogo } from "@/components/sidebar-logo"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
@@ -27,6 +27,7 @@ export function DashboardHeader() {
   const authModalContext = useAuthRequiredModal()
   const currentRoute = Object.values(WebRoutes).find((route) => route.path === pathname)
   const currentLabel = currentRoute?.label ?? "Dashboard"
+  const isAskAiRoute = pathname === WebRoutes.askAi.path || pathname.startsWith(`${WebRoutes.askAi.path}/`)
 
   const handleSignInClick = () => {
     authModalContext?.openAuthModal()
@@ -48,10 +49,12 @@ export function DashboardHeader() {
           <SidebarLogo />
         </div>
         <div className="ml-auto flex items-center gap-1 md:hidden">
-          <Button type="button" variant="ghost" size="icon" aria-label="Start new chat" onClick={handleNewChatClick}>
-            <PlusIcon className="size-4" />
-          </Button>
-          <SidebarTrigger />
+          {isAskAiRoute ? (
+            <Button type="button" variant="ghost" size="icon" aria-label="Start new chat" onClick={handleNewChatClick}>
+              <PlusIcon className="size-4" />
+            </Button>
+          ) : null}
+          {isAskAiRoute ? <SidebarTrigger /> : null}
         </div>
         <Breadcrumb className="hidden md:block">
           <BreadcrumbList>

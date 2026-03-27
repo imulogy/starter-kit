@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { listChatsApi } from "@/features/chat/api/chats.api"
-import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
+import { listChatsApi } from "@/features/ai/chat/api/chats.api"
+import { chatQueryKeys } from "@/features/ai/chat/constants/chat-query-keys"
 
 export function useFetchChats(enabled = true) {
   return useQuery({

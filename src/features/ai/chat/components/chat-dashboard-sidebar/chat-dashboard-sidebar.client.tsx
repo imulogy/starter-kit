@@ -8,11 +8,11 @@ import { useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
 import { WebRoutes } from "@/lib/web.routes"
-import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
-import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
-import { useMutateDeleteChat } from "@/features/chat/hooks/use-mutate-delete-chat"
-import { useChatNavigationStore } from "@/features/chat/store/chat-navigation.store"
-import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
+import { NEW_CHAT_EVENT_NAME } from "@/features/ai/chat/constants/new-chat-event.constants"
+import { useFetchChats } from "@/features/ai/chat/hooks/use-fetch-chats"
+import { useMutateDeleteChat } from "@/features/ai/chat/hooks/use-mutate-delete-chat"
+import { useChatNavigationStore } from "@/features/ai/chat/store/chat-navigation.store"
+import { getChatRoute } from "@/features/ai/chat/utils/chat-routes.utils"
 import {
   AlertDialog,
   AlertDialogAction,

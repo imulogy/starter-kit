@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 
+import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
-import { Chat } from "@/features/chat/components/chat"
+import { Chat } from "@/features/ai/chat/components/chat"
 import { SeoPageJsonLd } from "@/components/seo/seo-page-json-ld"
 
 const title = "Ask AI"
@@ -11,7 +12,7 @@ const canonical = WebRoutes.askAi.withBaseUrl()
 export const metadata: Metadata = {
   title,
   description,
-  keywords: ["ask ai", "ai chat", "assistant", "starter kit"],
+  keywords: SiteConfig.keywords,
   robots: {
     index: true,
     follow: true,

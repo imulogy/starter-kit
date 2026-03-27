@@ -2,8 +2,8 @@ import "server-only"
 
 import { Prisma } from "@/generated/prisma/client"
 import type { Message as MessageRow } from "@/generated/prisma/client"
-import { toClientMessageId, toStorageMessageId } from "@/features/chat/utils/chat-message-storage.utils"
-import { generateChatTitleFromUserMessage } from "@/features/chat/utils/generate-chat-title"
+import { toClientMessageId, toStorageMessageId } from "@/features/ai/chat/utils/chat-message-storage.utils"
+import { generateChatTitleFromUserMessage } from "@/features/ai/chat/utils/generate-chat-title"
 import { prisma } from "@/lib/prisma"
 import type { UIMessage } from "ai"
 

@@ -1,16 +1,17 @@
 import type { Metadata } from "next"
 
+import { SiteConfig } from "@/lib/site.config"
 import { WebRoutes } from "@/lib/web.routes"
 import { SeoPageJsonLd } from "@/components/seo/seo-page-json-ld"
 
 const title = "Home Dashboard"
-const description = "Manage your workspace, jump into Ask AI, and navigate your Starter Kit dashboard."
+const description = "Manage your workspace, jump into Ask AI, and navigate your " + SiteConfig.name + " dashboard."
 const canonical = WebRoutes.root.withBaseUrl()
 
 export const metadata: Metadata = {
   title,
   description,
-  keywords: ["starter kit", "dashboard", "workspace", "ai"],
+  keywords: SiteConfig.keywords,
   robots: {
     index: true,
     follow: true,
@@ -35,8 +36,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-1 flex-col gap-4 px-4 py-10">
       <SeoPageJsonLd name={title} description={description} url={canonical} />
-      <div className="mx-auto h-24 w-full max-w-3xl rounded-xl bg-muted/50" />
-      <div className="mx-auto h-full w-full max-w-3xl rounded-xl bg-muted/50" />
+      <h1>{SiteConfig.name}</h1>
     </div>
   )
 }

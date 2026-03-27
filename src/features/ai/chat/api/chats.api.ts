@@ -1,5 +1,5 @@
-import type { ChatsListResponse, CreateChatResponse, GetChatResponse } from "@/features/chat/types/chat-api.types"
-import type { ChatListItem } from "@/features/chat/types/chat-list.types"
+import type { ChatsListResponse, CreateChatResponse, GetChatResponse } from "@/features/ai/chat/types/chat-api.types"
+import type { ChatListItem } from "@/features/ai/chat/types/chat-list.types"
 import { apiRequest } from "@/lib/http-client"
 import { ApiRoutes } from "@/lib/api.routes"
 

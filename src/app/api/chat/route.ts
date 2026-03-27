@@ -6,12 +6,12 @@ import { z } from "zod"
 
 import { CHAT_MODEL, gateway } from "@/lib/ai"
 import { auth } from "@/lib/auth/auth"
-import { CHAT_SYSTEM_PROMPT } from "@/features/chat/constants/chat-system-prompt"
+import { CHAT_SYSTEM_PROMPT } from "@/features/ai/chat/constants/chat-system-prompt"
 import {
   chatExists,
   maybeGenerateAiChatTitle,
   replaceMessagesForChat,
-} from "@/features/chat/repositories/chat.repository"
+} from "@/features/ai/chat/repositories/chat.repository"
 
 export const maxDuration = 300
 

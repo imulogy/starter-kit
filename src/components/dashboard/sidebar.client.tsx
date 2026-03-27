@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation"
 import * as React from "react"
 
 import { WebRoutes } from "@/lib/web.routes"
-import { ChatDashboardSidebar } from "@/features/chat/components/chat-dashboard-sidebar/chat-dashboard-sidebar.client"
+import { ChatDashboardSidebar } from "@/features/ai/chat/components/chat-dashboard-sidebar/chat-dashboard-sidebar.client"
 import { SidebarLogo } from "@/components/sidebar-logo"
 import {
   Sidebar as SidebarComponent,
