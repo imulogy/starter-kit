@@ -43,7 +43,7 @@ export function UserButton({ user }: UserButtonProps) {
         <DropdownMenuTrigger asChild>
           <Button type="button" variant="ghost" size="icon" aria-label="Open account menu">
             <Avatar>
-              <AvatarImage src={user.image ?? undefined} />
+              <AvatarImage src={user.image ?? undefined} alt={user.name ?? "User"} />
               <AvatarFallback>{getInitial(user.email)}</AvatarFallback>
             </Avatar>
           </Button>

@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 import type { UIMessage } from "ai"
-import { MessageCircleIcon, PlusIcon, XIcon } from "lucide-react"
+import { PlusIcon, SparklesIcon, XIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
@@ -98,7 +98,7 @@ export function AiWidget({ defaultOpen = false }: AiWidgetProps) {
           className="fixed right-4 bottom-4 z-40 size-12 rounded-full shadow-lg md:right-6 md:bottom-6"
           aria-label="Open AI widget"
         >
-          <MessageCircleIcon className="size-5" />
+          <SparklesIcon className="size-5" />
         </Button>
       </SheetTrigger>
 
