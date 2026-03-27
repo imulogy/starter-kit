@@ -11,6 +11,7 @@ import { WebRoutes } from "@/lib/web.routes"
 import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
 import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
 import { useMutateDeleteChat } from "@/features/chat/hooks/use-mutate-delete-chat"
+import { useChatNavigationStore } from "@/features/chat/store/chat-navigation.store"
 import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
 import {
   AlertDialog,
@@ -40,6 +41,7 @@ export function ChatDashboardSidebar() {
   const [pendingDeleteChatId, setPendingDeleteChatId] = useState<string | null>(null)
   const { data: session, isPending: isSessionPending } = authClient.useSession()
   const isAuthenticated = Boolean(session?.user)
+  const activeChatId = useChatNavigationStore((state) => state.activeChatId)
   const chatsQuery = useFetchChats(isAuthenticated && !isSessionPending)
   const deleteChatMutation = useMutateDeleteChat()
   const chats = chatsQuery.data ?? []
@@ -80,7 +82,10 @@ export function ChatDashboardSidebar() {
           <SidebarGroupContent className="pt-1 pl-1">
             <SidebarMenu className="max-h-64 overflow-y-auto">
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === WebRoutes.askAi.path ? true : undefined}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === WebRoutes.askAi.path && !activeChatId ? true : undefined}
+                >
                   <button type="button" className="flex w-full items-center gap-2" onClick={handleStartNewChat}>
                     <span>New Chat</span>
                     <PlusIcon className="ml-auto size-4" />
@@ -89,7 +94,8 @@ export function ChatDashboardSidebar() {
               </SidebarMenuItem>
               {chats.map((chat) => {
                 const chatPath = getChatRoute(chat.id)
-                const isActive = pathname === chatPath
+                const isActive =
+                  pathname === chatPath || (pathname === WebRoutes.askAi.path && activeChatId === chat.id)
                 const label = chat.title?.trim() || "Untitled chat"
                 return (
                   <SidebarMenuItem key={chat.id}>

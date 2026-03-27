@@ -2,20 +2,21 @@
 
 import { useQueryClient } from "@tanstack/react-query"
 import type { UIMessage } from "ai"
-import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 
 import { authClient } from "@/lib/auth/auth-client"
+import { WebRoutes } from "@/lib/web.routes"
 import { ChatSession } from "@/features/chat/components/chat-session/chat-session"
 import { chatQueryKeys } from "@/features/chat/constants/chat-query-keys"
 import { NEW_CHAT_EVENT_NAME } from "@/features/chat/constants/new-chat-event.constants"
 import { useFetchChatDetail } from "@/features/chat/hooks/use-fetch-chat-detail"
 import { useFetchChats } from "@/features/chat/hooks/use-fetch-chats"
+import { useChatNavigationStore } from "@/features/chat/store/chat-navigation.store"
 import type { ChatProps } from "@/features/chat/types/chat.types"
+import { getChatRoute } from "@/features/chat/utils/chat-routes.utils"
 import { Spinner } from "@/components/ui/spinner"
 
 export function Chat({ initialChatId = null }: ChatProps) {
-  const router = useRouter()
   const { data: session, isPending: isSessionPending } = authClient.useSession()
   const isAuthenticated = Boolean(session?.user)
   const isGuestResolved = !isSessionPending && !isAuthenticated
@@ -27,7 +28,14 @@ export function Chat({ initialChatId = null }: ChatProps) {
   const [sessionClientId, setSessionClientId] = useState("")
   const bootstrapModeRef = useRef<"guest" | "authenticated" | null>(null)
   const hasRefetchedChatsForSessionRef = useRef(false)
+  const setNavigationActiveChatId = useChatNavigationStore((state) => state.setActiveChatId)
   const chatDetailQuery = useFetchChatDetail(activeChatId, isAuthenticated)
+  const replaceAddressBarPath = (path: string) => {
+    if (window.location.pathname === path) {
+      return
+    }
+    window.history.replaceState(window.history.state, "", path)
+  }
 
   const hydratedFromServer = Boolean(activeChatId) && sessionClientId === activeChatId
   const initialMessages: UIMessage[] = hydratedFromServer && chatDetailQuery.data ? chatDetailQuery.data.messages : []
@@ -78,7 +86,6 @@ export function Chat({ initialChatId = null }: ChatProps) {
     initialChatId,
     isGuestResolved,
     isSessionPending,
-    router,
   ])
 
   useEffect(() => {
@@ -96,6 +103,7 @@ export function Chat({ initialChatId = null }: ChatProps) {
     const handleNewChat = () => {
       setActiveChatId(null)
       setSessionClientId(crypto.randomUUID())
+      replaceAddressBarPath(WebRoutes.askAi.path)
     }
 
     window.addEventListener(NEW_CHAT_EVENT_NAME, handleNewChat)
@@ -110,6 +118,10 @@ export function Chat({ initialChatId = null }: ChatProps) {
     }
     hasRefetchedChatsForSessionRef.current = false
   }, [sessionClientId])
+
+  useEffect(() => {
+    setNavigationActiveChatId(activeChatId)
+  }, [activeChatId, setNavigationActiveChatId])
 
   if (chatsQuery.isError) {
     return (
@@ -146,6 +158,7 @@ export function Chat({ initialChatId = null }: ChatProps) {
             initialMessages={initialMessages}
             onChatCreated={(id) => {
               setActiveChatId(id)
+              replaceAddressBarPath(getChatRoute(id))
             }}
             onConversationUpdated={() => {
               if (!hasRefetchedChatsForSessionRef.current) {
